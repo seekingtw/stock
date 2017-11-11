@@ -14,11 +14,10 @@ def stock_to_andas(stock):
         re_result= re.match(r'_',each)
         #print (re_result)
         if re_result==None:
-            #dict_info[each]=stock.daa
+            # setup dict_info
             cmd="dict_info['"+each+"']=stock."+each
             #print(cmd)
             exec(cmd)
-#print(dict_info)
     pd_stock=pandas.DataFrame()
     for each in dict_info:
         pd_stock[each]=pandas.Series(dict_info[each])
@@ -56,6 +55,6 @@ def stock_to_googleCSV(stock,csv_file_name):
     
 if __name__ == "__main__":
     #stock=Stock(stock_id)
-    #stock=Stock('2618')
+    stock=Stock('2618')
     stock.fetch_from(2010,1)
     twstock2googleCSV(stock,'2618.csv')
