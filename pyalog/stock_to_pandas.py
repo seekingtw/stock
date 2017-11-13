@@ -29,7 +29,7 @@ def stock_to_csv(stock,csv_file_name):
     pass
 
 def stock_to_yahooCSV(stock,csv_file_name):
-    pd_stock=twstock2pandas(stock)
+    pd_stock=stock_to_andas(stock)
     yahoo_cols=['Date','Open','High','Low','Close','Volume','Adj Close']
     pd_stock_yahoo=pandas.DataFrame()
     pd_stock_yahoo['Date']=pd_stock.date
@@ -42,7 +42,7 @@ def stock_to_yahooCSV(stock,csv_file_name):
     pd_stock_yahoo.to_csv(csv_file_name,index=False)
     
 def stock_to_googleCSV(stock,csv_file_name):
-    pd_stock=twstock2pandas(stock)
+    pd_stock=stock_to_andas(stock)
     yahoo_cols=['DATE','CLOSE','HIGH','LOW','OPEN','VOLUME']
     pd_stock_yahoo=pandas.DataFrame()
     pd_stock_yahoo['DATE']=pd_stock.date
@@ -57,4 +57,4 @@ if __name__ == "__main__":
     #stock=Stock(stock_id)
     stock=Stock('2618')
     stock.fetch_from(2010,1)
-    twstock2googleCSV(stock,'2618.csv')
+    stock_to_googleCSV(stock,'2618.csv')
