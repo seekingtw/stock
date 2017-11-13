@@ -43,28 +43,26 @@ class SMACrossOver(strategy.BacktestingStrategy):
             
 #import sma_crossover
 from pyalgotrade import plotter
-from pyalgotrade.tools import yahoofinance
 from pyalgotrade.tools import googlefinance
 from pyalgotrade.stratanalyzer import sharpe
+from pyalgotrade.barfeed import googlefeed
 
 
 def main(plot):
-    instrument = 'aapl'
+
     smaPeriod = 163
-
-    # Download the bars.
-    #feed = yahoofinance.build_feed([instrument], 2011, 2012, ".")
-    #feed = googlefinance.download_daily_bars('aapl',2010,'2030.csv')
-    feed = googlefinance.build_feed([instrument],2015,2016,'aapl.csv')
-
     '''
-    # Load the yahoo feed from the CSV file
-    feed = yahoofeed.Feed()
-    feed.addBarsFromCSV("orcl", "orcl-2000.csv")
-    
-    # Evaluate the strategy with the feed's bars.
-    myStrategy = sma_crossover.SMACrossOver(feed, "orcl", 20)
-'''
+    #Download the bars.
+    instrument = 'aapl'
+    feed = googlefinance.download_daily_bars('aapl',2010,'2030.csv')
+    feed = googlefinance.build_feed([instrument],2015,2016,'aapl.csv')
+    '''
+    # Get from local file
+    instrument = '2030'
+    feed = googlefeed.Feed()
+    feed.addBarsFromCSV(instrument,"2030.csv")
+
+
     strat = SMACrossOver(feed, instrument, smaPeriod)
     sharpeRatioAnalyzer = sharpe.SharpeRatio()
     strat.attachAnalyzer(sharpeRatioAnalyzer)
