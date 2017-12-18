@@ -2,6 +2,9 @@
 '''
 create by Jianhao Su
 '''
+import sys
+sys.path.append("pyalgotrade-develop")
+
 from pyalgotrade import strategy
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import cross
