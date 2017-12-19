@@ -8,6 +8,7 @@ sys.path.append("pyalgotrade-develop")
 from pyalgotrade import strategy
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import cross
+from Record import *
 
 
 class SMACrossOver(strategy.BacktestingStrategy):
@@ -19,6 +20,7 @@ class SMACrossOver(strategy.BacktestingStrategy):
         #self.setUseAdjustedValues(True)
         self.__prices = feed[instrument].getPriceDataSeries()
         self.__sma = ma.SMA(self.__prices, smaPeriod)
+        self.record = Record()
 
     def getSMA(self):
         return self.__sma
@@ -38,10 +40,14 @@ class SMACrossOver(strategy.BacktestingStrategy):
         if self.__position is None:
             if cross.cross_above(self.__prices, self.__sma) > 0:
                 shares = int(self.getBroker().getCash() * 0.9 / bars[self.__instrument].getPrice())
+                cur_price= bars[self.__instrument].getPrice()
                 # Enter a buy market order. The order is good till canceled.
                 self.__position = self.enterLong(self.__instrument, shares, True)
+               # self.record.record({'type':"long"},{"share":shares},{"price":cur_price})
+                self.record.record_order(bars.getDateTime(),"long",shares,cur_price)
         # Check if we have to exit the position.
         elif not self.__position.exitActive() and cross.cross_below(self.__prices, self.__sma) > 0:
+            self.record.record({"date":bars.getDateTime()},{"type":"exit"})
             self.__position.exitMarket()
             
 #import sma_crossover
@@ -53,7 +59,7 @@ from pyalgotrade.barfeed import googlefeed
 
 def main(plot):
 
-    smaPeriod = 163
+    smaPeriod = 5
     '''
     #Download the bars.
     instrument = 'aapl'
@@ -76,9 +82,10 @@ def main(plot):
 
     strat.run()
     print "Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05)
-
+    strat.record.save()
     if plot:
         plt.plot()
+ 
 
 
 if __name__ == "__main__":
