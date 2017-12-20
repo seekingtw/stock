@@ -4,6 +4,8 @@ from twstock import Stock
 import pandas 
 import re
 import click
+from datetime import *
+
 def datetime_to_google_time(time):
     month_abbr = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4,
                   'May': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8,
@@ -60,24 +62,49 @@ def stock_to_googleCSV(stock,csv_file_name):
     pd_stock_yahoo['VOLUME']=pd_stock.capacity
     pd_stock_yahoo.to_csv(csv_file_name,index=False)
 
-from datetime import *
+def run_item(twid ,start, end, csv):
+        datetime_start= datetime.strptime(start,"%Y-%m-%d")
+        datetime_end= datetime.strptime(end,"%Y-%m-%d")
+        if csv=="":
+            csv=twid+".csv"
+        print("twid: {}".format(twid))
+        print("csv : {}".format(csv))
+        #print(start)
+        print("start_time: {}".format(datetime_start))
+        #print(end)
+        print("end_time(disable now): {}".format(datetime_end))
+        fetch(twid,csv,datetime_start,datetime_end)
+        
+
 @click.command()
 @click.option('--twid', default='2330', help='tw stock id')
 @click.option('--csv', default='', help='csv output')
 @click.option('--start', default='2010-01-01', help='start date')
 @click.option('--end', default='2017-01-01', help='end date')
-def run(twid, csv, start, end):
-    datetime_start= datetime.strptime(start,"%Y-%m-%d")
-    datetime_end= datetime.strptime(end,"%Y-%m-%d")
-    if csv=="":
-        csv=twid+".csv"
-    print("twid: {}".format(twid))
-    print("csv : {}".format(csv))
-    #print(start)
-    print("start_time: {}".format(datetime_start))
-    #print(end)
-    print("end_time(disable now): {}".format(datetime_end))
-    fetch(twid,csv,datetime_start,datetime_end)
+@click.option('--input_config', default='', help='input_config[line content : twid,start,end,csv#comment]')
+def run(twid, csv, start, end,input_config):
+    if input_config == '':
+        run_item(twid,start,end,csv)
+    else:
+        with open(input_config,"r") as f:
+            twid='2330'
+            csv=''
+            start='2010-01-01'
+            end='2017-01-01'
+            line=f.readline()
+            while line :
+                #print(line)
+                texts=line.split('#')
+                strs=texts[0].split(",")
+                for i in range(len(strs)):
+                    string=strs[i].strip()
+                    if i == 0 : twid=string
+                    if i == 1 and string!= '':start= string
+                    if i == 2 and string!= '':end =string
+                    if i==3 and string!= '':csv=string
+                run_item(twid,start,end,csv)
+                #print(twid,start,end,csv)
+                line=f.readline()
 
 def fetch(twid='2330',csv="",start_time=None,end_time=datetime.now()):
     if start_time == None:
