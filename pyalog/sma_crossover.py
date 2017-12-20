@@ -60,8 +60,9 @@ from pyalgotrade.barfeed import googlefeed
 def main(plot):
 
     smaPeriod = 5
+    
+    #Download the bars
     '''
-    #Download the bars.
     instrument = 'aapl'
     feed = googlefinance.download_daily_bars('aapl',2010,'2030.csv')
     feed = googlefinance.build_feed([instrument],2015,2016,'aapl.csv')
@@ -70,7 +71,10 @@ def main(plot):
     instrument = '2030'
     feed = googlefeed.Feed()
     feed.addBarsFromCSV(instrument,"2030.csv")
-
+    instrument = '2412'
+    feed = googlefeed.Feed()
+    feed.addBarsFromCSV(instrument,"2412.csv")
+    
 
     strat = SMACrossOver(feed, instrument, smaPeriod)
     sharpeRatioAnalyzer = sharpe.SharpeRatio()
