@@ -8,8 +8,8 @@ sys.path.append("pyalgotrade-develop")
 from pyalgotrade import strategy
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import cross
+from pyalgotrade import dataseries
 from Record import *
-
 
 class SMACrossOver(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument, smaPeriod):
@@ -21,6 +21,7 @@ class SMACrossOver(strategy.BacktestingStrategy):
         self.__prices = feed[instrument].getPriceDataSeries()
         self.__sma = ma.SMA(self.__prices, smaPeriod)
         self.record = Record()
+        self.__asset =dataseries.SequenceDataSeries(365*10)
 
     def getSMA(self):
         return self.__sma
@@ -49,13 +50,32 @@ class SMACrossOver(strategy.BacktestingStrategy):
         elif not self.__position.exitActive() and cross.cross_below(self.__prices, self.__sma) > 0:
             self.record.record({"date":bars.getDateTime()},{"type":"exit"})
             self.__position.exitMarket()
-            
+
+        self.__asset.appendWithDateTime(bars.getDateTime(),self.getBroker().getEquity()+100000)
+
+    def getAsset(self):
+        return self.__asset
+
 #import sma_crossover
 from pyalgotrade import plotter
 from pyalgotrade.tools import googlefinance
 from pyalgotrade.stratanalyzer import sharpe
 from pyalgotrade.barfeed import googlefeed
+from pyalgotrade.stratanalyzer import trades
 
+import matplotlib.pyplot as pyplot
+def result_plot(series):
+    values = []
+    #for dateTime in series.getDateTimes():
+    #    values.append(series.getValue(dateTime))
+    fig, axes = pyplot.subplots(nrows=1, sharex=True, squeeze=False)
+    pyplot.plot(series.getDateTimes(), series.getValues())
+    #fig.autofmt_xdate()
+    #plt.legend(subPlot.getAllSeries().keys(), shadow=True, loc="best")
+# Don't scale the Y axis
+    #plt.yaxis.set_major_formatter(ticker.ScalarFormatter(useOffset=False))
+    pyplot.show()
+    pass
 
 def main(plot):
 
@@ -73,23 +93,35 @@ def main(plot):
     feed.addBarsFromCSV(instrument,"2030.csv")
     instrument = '2412'
     feed = googlefeed.Feed()
-    feed.addBarsFromCSV(instrument,"2412.csv")
+    feed.addBarsFromCSV(instrument,"2030.csv")
     
 
     strat = SMACrossOver(feed, instrument, smaPeriod)
     sharpeRatioAnalyzer = sharpe.SharpeRatio()
     strat.attachAnalyzer(sharpeRatioAnalyzer)
+    tradesAnalyzer = trades.Trades()
+    strat.attachAnalyzer(tradesAnalyzer)
 
     if plot:
-        plt = plotter.StrategyPlotter(strat, True, False, True)
+        plt = plotter.StrategyPlotter(strat, True, True, True)
         plt.getInstrumentSubplot(instrument).addDataSeries("sma", strat.getSMA())
+        #plt.getInstrumentSubplot(instrument).addDataSeries("xx",strat.getAsset())
 
     strat.run()
     print "Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05)
+    print strat.getAsset()
+    print tradesAnalyzer.getAll()
+    print tradesAnalyzer.getProfitableCount()
+    print tradesAnalyzer.getProfits()
+    print tradesAnalyzer.getLosses()
     strat.record.save()
+    abb=  strat.getAsset()
     if plot:
+        plt.getPortfolioSubplot().addDataSeries("test4", strat.getAsset())
+        #plt.getInstrumentPlot(instrument).addDataSeries("test", strat.getAsset())
         plt.plot()
- 
+    result_plot(strat.getAsset())
+    #result_plot(strat.getSMA())
 
 
 if __name__ == "__main__":
