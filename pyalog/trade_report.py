@@ -6,7 +6,7 @@ from datetime import *
 import pandas as pd
 import matplotlib.pyplot as pyplot
 from pyalgotrade import dataseries
-class tradereport:
+class trade_report:
     def __init__(self,name):
         self.timestamp=datetime.now()
         self.name=name
