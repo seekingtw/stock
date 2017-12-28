@@ -9,7 +9,6 @@ from Record import Record
 from trade_report import trade_report
 
 from analysis import section_analyzer
-'''
 class StrategyManager(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument,section_analyzer, **kwargs):
         ''' '''
@@ -58,52 +57,3 @@ class StrategyManager(strategy.BacktestingStrategy):
             pass
         pass
         #record
-'''
-from pyalgotrade.stratanalyzer import sharpe
-from pyalgotrade.barfeed import googlefeed
-from pyalgotrade import plotter
-from analysis import section_analyzer
-def main(plot):
-    test_string=""
-    #code = compile(test_string, 'user_strategy.py', 'exec')
-    #exec(code)
-    checknamespace={}
-
-
-    instrument = '2030'
-    feed = googlefeed.Feed()
-    feed.addBarsFromCSV(instrument,"2030.csv")
-    execfile('bband_strategy.py',checknamespace)
-    StrategyManager= checknamespace['BBands']
-    bBandsPeriod = 40
-    strat = StrategyManager(feed, instrument, bBandsPeriod)
-    sharpeRatioAnalyzer = sharpe.SharpeRatio()
-    strat.attachAnalyzer(sharpeRatioAnalyzer)
-
-    if plot:
-        plt = plotter.StrategyPlotter(strat, True, True, True)
-        plt.getInstrumentSubplot(instrument).addDataSeries("upper", strat.getBollingerBands().getUpperBand())
-        plt.getInstrumentSubplot(instrument).addDataSeries("middle", strat.getBollingerBands().getMiddleBand())
-        plt.getInstrumentSubplot(instrument).addDataSeries("lower", strat.getBollingerBands().getLowerBand())
-
-    strat.run()
-    print "Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05)
-
-    if plot:
-        plt.plot()
-
-    '''
-    execfile('user_strategy.py',checknamespace)
-    StrategyManager= checknamespace['StrategyManager']
-    section_ana = section_analyzer()
-    strat = StrategyManager(feed, instrument,section_ana)
-
-    plt = plotter.StrategyPlotter(strat, True, True, True)
-    strat.run()
-    #plt.plot()
-    section_ana.show()
-    '''
-    pass
-
-if __name__ == "__main__":
-    main(True)
