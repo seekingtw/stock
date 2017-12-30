@@ -9,7 +9,9 @@ from pyalgotrade import strategy
 from pyalgotrade.technical import ma
 from pyalgotrade.technical import cross
 from pyalgotrade import dataseries
-from Record import *
+from Record import Record
+from trade_report import trade_report
+
 
 class SMACrossOver(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument, smaPeriod):
@@ -20,7 +22,7 @@ class SMACrossOver(strategy.BacktestingStrategy):
         #self.setUseAdjustedValues(True)
         self.__prices = feed[instrument].getPriceDataSeries()
         self.__sma = ma.SMA(self.__prices, smaPeriod)
-        self.record = Record()
+        self.record = Record()#trade_report("test")
         self.__asset =dataseries.SequenceDataSeries(365*10)
 
     def getSMA(self):
