@@ -2,14 +2,8 @@ import sys
 sys.path.append("pyalgotrade-develop")
 
 from pyalgotrade import strategy
-from pyalgotrade.technical import ma
-from pyalgotrade.technical import cross
-from pyalgotrade import dataseries
-from Record import Record
 from trade_report import trade_report
-
-from analysis import section_analyzer
-from pyalgotrade import broker as basebroker
+from trade_report import trade_report
 
 class StrategyManager(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument,section_analyzer, **kwargs):
@@ -22,6 +16,7 @@ class StrategyManager(strategy.BacktestingStrategy):
 
         #self.strategys.append(MA_Stragtegy(feed,instrument,5))
         self.section_analyzer = section_analyzer
+        self.report = trade_report(str(instrument))
 
         pass
     def attach_strategy(self,strategy):
@@ -46,7 +41,7 @@ class StrategyManager(strategy.BacktestingStrategy):
     def onExitCanceled(self, position):
         # If the exit was canceled, re-submit it.
         self.__position.exitMarket()
-
+    '''
     def onOrderUpdated(self, order):
         if order.isBuy():
             orderType = "Buy"
@@ -55,6 +50,12 @@ class StrategyManager(strategy.BacktestingStrategy):
         self.info("%s order %d updated - Status: %s" % (
             orderType, order.getId(), basebroker.Order.State.toString(order.getState())
         ))
+    '''
+    def check(self):
+        self.section_analyzer.drawback_check()
+    def save(self):
+        for each in self.analyzers:
+            each.save(str(self.__instrument))
     def plot(self):
         for each in self.strategys:
             each.plot_show()
@@ -68,9 +69,7 @@ class StrategyManager(strategy.BacktestingStrategy):
             if self.__position is None:
 
                 if strategy.long(bars):
-                    shares = int(self.getBroker().getCash() * 0.9 / bars[self.__instrument].getPrice())
-                    # cur_price = bars[self.__instrument].getPrice()
-                    # Enter a buy market order. The order is good till canceled.
+                    shares = int(1000 / bars[self.__instrument].getPrice())
                     self.__position = self.enterLong(self.__instrument, shares, True)
                     self.section_analyzer.item(bars.getDateTime(), "long", self.getBroker().getEquity(),
                                                self.walkaround_share(shares), price, shares)
@@ -80,12 +79,19 @@ class StrategyManager(strategy.BacktestingStrategy):
                 self.section_analyzer.item(bars.getDateTime(), "long_exit", self.getBroker().getEquity(), 0, price, 0)
         pass
     pass
-from trade_strategy import MA_Stragtegy
 from pyalgotrade.stratanalyzer import sharpe
 from pyalgotrade.barfeed import googlefeed
-from pyalgotrade import plotter
-from  bband_strategy import *
 from analysis import section_analyzer
+import sys
+
+from analysis import section_analyzer
+sys.path.append("signal")
+from  bband import *
+from ma import *
+from macd import *
+from trend import *
+
+
 def main(plot):
     test_string=""
     #code = compile(test_string, 'user_strategy.py', 'exec')
@@ -98,13 +104,21 @@ def main(plot):
     feed = googlefeed.Feed()
     #feed.addBarsFromCSV(instrument,"2030.csv")
     feed.addBarsFromCSV(instrument,"tw50_test/1102.csv")
+    #feed.setBarFilter(DateRangeFilter(       datetime.strptime("2015-11-1","%Y-%m-%d"),         datetime.strptime("2016-2-1","%Y-%m-%d")))
+    #feed.addBarsFromCSV(instrument,"tw50_test/1102.csv")
+    #feed.addBarsFromCSV(instrument,"tw50_test/1301.csv")
     #execfile('bband_strategy.py',checknamespace)
     #StrategyManager= checknamespace['BBands']
     bBandsPeriod = 40
+    bBandsPeriod = 20
     section_ana = section_analyzer()
     strat = StrategyManager(feed, instrument,section_ana)
     #strat.attach_strategy(MA_Stragtegy(feed,instrument,5))
     strat.attach_strategy(BBand_strategy(strat,feed,instrument,40))
+    strat.attach_strategy(BBand_strategy(strat,feed,instrument,20))
+    #strat.attach_strategy(DMA_signal(strat,feed,instrument,20,60))
+    #strat.attach_strategy(macd_signal(strat,feed,instrument,12,26,9))
+    #strat.attach_strategy(trend_signal(strat,feed,instrument,20))
 
     sharpeRatioAnalyzer = sharpe.SharpeRatio()
     strat.attachAnalyzer(sharpeRatioAnalyzer)
@@ -112,6 +126,9 @@ def main(plot):
     strat.run()
     print "Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05)
     section_ana.show()
+
+    print ("drawback check")
+    strat.check()
     strat.plot()
 
     '''

@@ -5,7 +5,7 @@ Created on Tue Dec 19 20:26:42 2017
 @author: housesu
 """
 import pandas as pd
-
+import pickle
 class section_analyzer:
     def __init__(self):
         self.datetimes = [] # to numpy?
@@ -40,6 +40,14 @@ class section_analyzer:
             self.price_diff.append(self.price[i] - previous_price)
             previous_price= self.price[i]
         pass
+    def save(self,name ):
+        pickle.dump(self, open(name + "_section_ana.pickle", "wb"))
+    def drawback_check(self ):
+        print ("i, date, type,price, diff_price")
+        for i,each in enumerate (self.price_diff):
+            if each < 0 and self.type[i] == "long_exit":
+                print (i-1, self.datetimes[i-1], self.type[i-1],self.price[i-1])
+                print (i, self.datetimes[i],self.type[i],self.price[i])
 
     def show(self):
         if len(self.profit) == 0: self.analyze()
