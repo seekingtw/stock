@@ -1,0 +1,163 @@
+diff --git a/pyalog/analysis.py b/pyalog/analysis.py
+index 3a74058..5abea76 100644
+--- a/pyalog/analysis.py
++++ b/pyalog/analysis.py
+@@ -5,7 +5,7 @@ Created on Tue Dec 19 20:26:42 2017
+ @author: housesu
+ """
+ import pandas as pd
+-
++import pickle
+ class section_analyzer:
+     def __init__(self):
+         self.datetimes = [] # to numpy?
+@@ -40,6 +40,14 @@ class section_analyzer:
+             self.price_diff.append(self.price[i] - previous_price)
+             previous_price= self.price[i]
+         pass
++    def save(self,name ):
++        pickle.dump(self, open(name + "_section_ana.pickle", "wb"))
++    def drawback_check(self ):
++        print ("i, date, type,price, diff_price")
++        for i,each in enumerate (self.price_diff):
++            if each < 0 and self.type[i] == "long_exit":
++                print (i-1, self.datetimes[i-1], self.type[i-1],self.price[i-1])
++                print (i, self.datetimes[i],self.type[i],self.price[i])
+
+diff --git a/pyalog/major.py b/pyalog/major.py
+index dcebc47..9623257 100644
+--- a/pyalog/major.py
++++ b/pyalog/major.py
+@@ -2,14 +2,8 @@ import sys
+ sys.path.append("pyalgotrade-develop")
+
+ from pyalgotrade import strategy
+-from pyalgotrade.technical import ma
+-from pyalgotrade.technical import cross
+-from pyalgotrade import dataseries
+-from Record import Record
+ from trade_report import trade_report
+
+-from analysis import section_analyzer
+-from pyalgotrade import broker as basebroker
+
+ class StrategyManager(strategy.BacktestingStrategy):
+     def __init__(self, feed, instrument,section_analyzer, **kwargs):
+@@ -22,6 +16,7 @@ class StrategyManager(strategy.BacktestingStrategy):
+
+         #self.strategys.append(MA_Stragtegy(feed,instrument,5))
+         self.section_analyzer = section_analyzer
++        self.report = trade_report(str(instrument))
+
+         pass
+     def attach_strategy(self,strategy):
+@@ -30,13 +25,14 @@ class StrategyManager(strategy.BacktestingStrategy):
+     def attach_analyzer(self,analyzer):
+         self.analyzers.append(analyzer)
+         pass
+-
+-    def onEnterOk(self, position):
++    '''
++        def onEnterOk(self, position):
+         execInfo = position.getEntryOrder().getExecutionInfo()
+         self.info("BUY at $%.2f" % (execInfo.getPrice()))
+
+     def onEnterCanceled(self, position):
+         self.__position = None
++    '''
+
+     def onExitOk(self, position):
+         execInfo = position.getExitOrder().getExecutionInfo()
+@@ -46,7 +42,7 @@ class StrategyManager(strategy.BacktestingStrategy):
+     def onExitCanceled(self, position):
+         # If the exit was canceled, re-submit it.
+         self.__position.exitMarket()
+-
++    '''
+     def onOrderUpdated(self, order):
+         if order.isBuy():
+             orderType = "Buy"
+@@ -55,6 +51,12 @@ class StrategyManager(strategy.BacktestingStrategy):
+         self.info("%s order %d updated - Status: %s" % (
+             orderType, order.getId(), basebroker.Order.State.toString(order.getState(
+))
+         ))
++    '''
++    def check(self):
++        self.section_analyzer.drawback_check()
++    def save(self):
++        for each in self.analyzers:
++            each.save(str(self.__instrument))
+     def plot(self):
+         for each in self.strategys:
+             each.plot_show()
+@@ -68,7 +70,8 @@ class StrategyManager(strategy.BacktestingStrategy):
+             if self.__position is None:
+
+                 if strategy.long(bars):
+-                    shares = int(self.getBroker().getCash() * 0.9 / bars[self.__instr
+ument].getPrice())
++                    shares = int(1000 / bars[self.__instrument].getPrice())
++                    #shares = int(self.getBroker().getCash() * 0.9 / bars[self.__inst
+rument].getPrice())
+                     # cur_price = bars[self.__instrument].getPrice()
+                     # Enter a buy market order. The order is good till canceled.
+                     self.__position = self.enterLong(self.__instrument, shares, True)
+
+@@ -80,12 +83,20 @@ class StrategyManager(strategy.BacktestingStrategy):
+                 self.section_analyzer.item(bars.getDateTime(), "long_exit", self.getB
+roker().getEquity(), 0, price, 0)
+         pass
+     pass
+-from trade_strategy import MA_Stragtegy
++
++
+ from pyalgotrade.stratanalyzer import sharpe
+ from pyalgotrade.barfeed import googlefeed
+-from pyalgotrade import plotter
+-from  bband_strategy import *
++import sys
++
+ from analysis import section_analyzer
++sys.path.append("signal")
++from  bband_strategy import *
++from dual_ma import *
++from macd import *
++from trend import *
++
++
+ def main(plot):
+     test_string=""
+     #code = compile(test_string, 'user_strategy.py', 'exec')
+@@ -97,14 +108,20 @@ def main(plot):
+     instrument = '2030'
+     feed = googlefeed.Feed()
+     #feed.addBarsFromCSV(instrument,"2030.csv")
++    #feed.setBarFilter(DateRangeFilter(       datetime.strptime("2015-11-1","%Y-%m-%d"),         datetime.strptime("2016-2-1","%Y-%m-%d")))
+     feed.addBarsFromCSV(instrument,"tw50_test/1102.csv")
++    #feed.addBarsFromCSV(instrument,"tw50_test/1301.csv")
+     #execfile('bband_strategy.py',checknamespace)
+     #StrategyManager= checknamespace['BBands']
+-    bBandsPeriod = 40
++    bBandsPeriod = 20
+     section_ana = section_analyzer()
+     strat = StrategyManager(feed, instrument,section_ana)
+     #strat.attach_strategy(MA_Stragtegy(feed,instrument,5))
+-    strat.attach_strategy(BBand_strategy(strat,feed,instrument,40))
++    #strat.attach_strategy(BBand_strategy(strat,feed,instrument,20))
++    #strat.attach_strategy(DMA_signal(strat,feed,instrument,20,60))
++    strat.attach_strategy(macd_signal(strat,feed,instrument,12,26,9))
++    #strat.attach_strategy(trend_signal(strat,feed,instrument,20))
++
+
+     sharpeRatioAnalyzer = sharpe.SharpeRatio()
+     strat.attachAnalyzer(sharpeRatioAnalyzer)
+@@ -112,6 +129,8 @@ def main(plot):
+     strat.run()
+     print "Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05)
+     section_ana.show()
++    print ("drawback check")
++    strat.check()
+     strat.plot()
+
+     '''
