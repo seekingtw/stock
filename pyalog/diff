@@ -161,3 +161,30 @@ roker().getEquity(), 0, price, 0)
      strat.plot()
 
      '''
+---
+for major 
+    strat.attach_strategy(kd_signal(strat,feed,instrument,9,3))
+   
+   
+kd : need verify
+    def __init__(self, barDataSeries, period, dSMAPeriod=3, useAdjustedValues=False, maxLen=None):
+        assert dSMAPeriod > 1, "dSMAPeriod must be > 1"
+        assert isinstance(barDataSeries, bards.BarDataSeries), \
+            "barDataSeries must be a dataseries.bards.BarDataSeries instance"
+
+        super(StochasticOscillator, self).__init__(barDataSeries, SOEventWindow(period, useAdjustedValues), maxLen)
+        self.__d = ma.SMA(self, dSMAPeriod, maxLen)
+        self.k = self.__d
+        self.d = ma.SMA(self.k,dSMAPeriod,maxLen)
+
+    def getD(self):
+        """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the %D values."""
+        return self.__d
+
+    def getKD_k(self):
+        """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the %D values."""
+        return self.k
+    def getKD_d(self):
+        """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the %D values."""
+        return self.d
+    
