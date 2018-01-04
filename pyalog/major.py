@@ -86,11 +86,12 @@ import sys
 
 from analysis import section_analyzer
 sys.path.append("signal")
-from  bband import *
+#from bband import *
+from bband2 import *
 from ma import *
 from macd import *
 from trend import *
-
+#from kd import *
 
 def main(plot):
     test_string=""
@@ -114,18 +115,20 @@ def main(plot):
     section_ana = section_analyzer()
     strat = StrategyManager(feed, instrument,section_ana)
     #strat.attach_strategy(MA_Stragtegy(feed,instrument,5))
-    strat.attach_strategy(BBand_strategy(strat,feed,instrument,40))
-    strat.attach_strategy(BBand_strategy(strat,feed,instrument,20))
+    #strat.attach_strategy(BBand_strategy(strat,feed,instrument,40))
+    #strat.attach_strategy(bband2_signal(strat,feed,instrument,20))
     #strat.attach_strategy(DMA_signal(strat,feed,instrument,20,60))
     #strat.attach_strategy(macd_signal(strat,feed,instrument,12,26,9))
     #strat.attach_strategy(trend_signal(strat,feed,instrument,20))
+    #strat.attach_strategy(kd_signal(strat,feed,instrument,9,3))
+    strat.attach_strategy(bband_signal(strat,feed,instrument,20))
 
     sharpeRatioAnalyzer = sharpe.SharpeRatio()
     strat.attachAnalyzer(sharpeRatioAnalyzer)
 
     strat.run()
     print "Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05)
-    section_ana.show()
+    #section_ana.show()
 
     print ("drawback check")
     strat.check()
