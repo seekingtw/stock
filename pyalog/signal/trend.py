@@ -30,7 +30,7 @@ def trend_ratio(list,period=20, interval= 5,div=4):
 
     else:
         val =  None
-    print ("avg now ", avg_now, " avg prev", avg_prev, " ratio ", val)
+    #print ("avg now ", avg_now, " avg prev", avg_prev, " ratio ", val)
 
     return val
 

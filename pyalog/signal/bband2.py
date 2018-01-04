@@ -112,7 +112,7 @@ class bband_signal(baseSignal):
                                                                            self.getBollingerBands().getMiddleBand())
             self.plt.getInstrumentSubplot(self.instrument).addDataSeries("lower",
                                                                            self.getBollingerBands().getLowerBand())
-           # self.plt = plotter.StrategyPlotter(self.__strategy, True, True, True)
+            self.plt.getOrCreateSubplot("trend").addDataSeries("trend", self.__trend.getTrend())
 
         pass
 
