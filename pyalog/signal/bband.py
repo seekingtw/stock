@@ -1,6 +1,6 @@
-
+__metaclass__ = type
 import sys
-#sys.path.append("pyalgotrade-develop")
+sys.path.append("pyalgotrade-develop")
 from pyalgotrade import strategy
 from pyalgotrade import plotter
 from pyalgotrade.tools import quandl
@@ -11,8 +11,14 @@ from pyalgotrade import plotter
 from pyalgotrade.technical import bollinger
 from pyalgotrade.technical import cross
 from trend import *
+
 class baseSignal:
-    def __init__(self):
+    def __init__(self,strategy,feed, instrument,):
+        self.__strategy = strategy
+        self.__instrument = instrument
+        self.__prices = feed[instrument].getPriceDataSeries()
+        self.vol = feed[instrument].getVolumeDataSeries()
+        self.plot_init(True)
         pass
     def long_signal(self):
         pass
@@ -22,38 +28,30 @@ class baseSignal:
         pass
     def is_short(self):
         pass
-'''
-def treand_check(list):
-    if len(list) > 20:
-        max_pre = max(list[-1-19:-1+5-19])
-        max_now = max(list[-5:])
-        if max_pre == None or max_now == None:
-            return -1
-        print ("max now ", max_now," max prev" , max_pre," ratio ",(max_now-max_pre)/max_pre)
-        if (max_now - max_pre)/max_pre  >0.05:
-            return 1
-        elif  (max_now - max_pre)/max_pre  <0:
-            return -1
-        elif  (max_now - max_pre)/max_pre  <-0.05:
-            return -2
-        else :
-            return 0
-    else:
-        return 0
-
-'''
 
 
-class BBand_strategy(baseSignal):
+    def plot_init(self, plot):
+        if plot:  # plot:
+            self.plt = plotter.StrategyPlotter(self.__strategy, True, True, True)
+            self.plt.getOrCreateSubplot("vol").addDataSeries("vol", self.vol)
+        pass
+
+
+    def plot_show(self):
+        self.plt.plot()
+        pass
+
+class bband_signal(baseSignal):
     def __init__(self, strategy,feed, instrument, bBandsPeriod):
-        self.__instrument = instrument
-        self.__prices = feed[instrument].getPriceDataSeries()
+        super(bband_signal, self).__init__(strategy,feed, instrument)
+        #baseSignal.__init__(strategy,feed, instrument)
         self.__position = None#remove later
         self.__bbands = bollinger.BollingerBands(feed[instrument].getCloseDataSeries(), bBandsPeriod, 2)
         #self.__bbands = bollinger.BollingerBands(feed[instrument].getCloseDataSeries(), bBandsPeriod, 1)
-        self.__strategy= strategy
+
         self.__trend = TrendRatio(self.__prices,20)
-        self.plot_init(True)
+        self.plot_init(False)
+
     def getBollingerBands(self):
         return self.__bbands
 
@@ -75,7 +73,6 @@ class BBand_strategy(baseSignal):
         sys.stdout.write("\n")
         pass
     def long(self, bars):
-        global list_info
         lower = self.__bbands.getLowerBand()[-1]
         upper = self.__bbands.getUpperBand()[-1]
         ma=  self.getBollingerBands().getMiddleBand()
@@ -153,12 +150,14 @@ class BBand_strategy(baseSignal):
 
     def plot_init(self, plot):
         if plot:  # plot:
-            self.plt = plotter.StrategyPlotter(self.__strategy, True, True, True)
+            super(bband_signal,self).plot_init(plot)
+            #self.plt = plotter.StrategyPlotter(self.__strategy, True, True, True)
+            #self.plt.getOrCreateSubplot("vol").addDataSeries("vol", self.vol)
             self.plt.getInstrumentSubplot(self.__instrument).addDataSeries("upper", self.getBollingerBands().getUpperBand())
             self.plt.getInstrumentSubplot(self.__instrument).addDataSeries("middle",
                                                                            self.getBollingerBands().getMiddleBand())
             self.plt.getInstrumentSubplot(self.__instrument).addDataSeries("lower", self.getBollingerBands().getLowerBand())
-            self.plt.getOrCreateSubplot("trend").addDataSeries("tend", self.__trend.getTrend())
+            #self.plt.getOrCreateSubplot("trend").addDataSeries("tend", self.__trend.getTrend())
         pass
 
 
@@ -166,7 +165,7 @@ class BBand_strategy(baseSignal):
         self.plt.plot()
         pass
 
-'''
+    '''
     def onBars(self, bars):
         lower = self.__bbands.getLowerBand()[-1]
         upper = self.__bbands.getUpperBand()[-1]
@@ -182,6 +181,13 @@ class BBand_strategy(baseSignal):
         elif shares > 0 and bar.getClose() > upper:
             self.info("Placing sell market order for %s shares" % shares)
             self.marketOrder(self.__instrument, -1*shares)
-'''
+    '''
+
+    pass
+
+if __name__ == "__main__":
+
+    print 111
+    #test_obj= bband_signal(None,None,0,1)
 
 

@@ -1,7 +1,8 @@
 
+__metaclass__ = type
+import sys
 
-#import sys
-#sys.path.append("pyalgotrade-develop")
+sys.path.append("pyalgotrade-develop")
 from pyalgotrade import dataseries
 from pyalgotrade.technical import ma
 from pyalgotrade import plotter
@@ -89,7 +90,12 @@ class TrendRatio(object):
         return  self.trend_data[-1]
 
 class baseSignal:
-    def __init__(self):
+    def __init__(self,strategy,feed, instrument):
+        self.strategy = strategy
+        self.instrument = instrument
+        self.prices = feed[instrument].getPriceDataSeries()
+        self.vol = feed[instrument].getVolumeDataSeries()
+        #self.plot_init(True)
         pass
     def long_signal(self):
         pass
@@ -99,19 +105,30 @@ class baseSignal:
         pass
     def is_short(self):
         pass
+
+
     def plot_init(self, plot):
-        print ("plot_int is not implemented")
+        if plot:  # plot:
+            self.plt = plotter.StrategyPlotter(self.strategy, True, True, True)
+            self.plt.getOrCreateSubplot("vol").addDataSeries("vol", self.vol)
+        pass
+
 
     def plot_show(self):
-        print ("plot_show is not implemented")
+        self.plt.plot()
+        pass
+
 
 class trend_signal(baseSignal):
     def __init__(self,strategy,feed, instrument,period):
-        self.__strategy= strategy
-        self.__instrument = instrument
-        self.__prices = feed[instrument].getPriceDataSeries()
-        self.trend = TrendRatio(self.__prices, period)
-
+        #super(trend_signal,self).__init__(strategy,feed,instrument)
+        #self.__strategy= strategy
+        #self.__instrument = instrument
+        #self.__prices = feed[instrument].getPriceDataSeries()
+        #super(trend_signal, self).__init__(strategy, feed, instrument)
+        #print type(trend_signal)
+        super(trend_signal,self).__init__(strategy, feed, instrument)
+        self.trend = TrendRatio(self.prices, period)
         self.plot_init(True)
 
     def long(self,bars):
@@ -131,7 +148,8 @@ class trend_signal(baseSignal):
 
     def plot_init(self, plot):
         if plot:  # plot:
-            self.plt = plotter.StrategyPlotter(self.__strategy, True, True, True)
+            super(trend_signal,self).plot_init(plot)
+            #self.plt = plotter.StrategyPlotter(self.strategy, True, True, True)
             # self.plt.getInstrumentSubplot(self.__instrument).addDataSeries("fast_ma", self.fast_ma)
             # self.plt.getInstrumentSubplot(self.__instrument).addDataSeries("slow_ma",
             #                                                               self.slow_ma)
