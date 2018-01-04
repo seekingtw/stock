@@ -188,3 +188,7 @@ kd : need verify
         """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the %D values."""
         return self.d
     
+    
+  vol:
+          self.vol=feed[instrument].getVolumeDataSeries()
+             self.plt.getOrCreateSubplot("vol").addDataSeries("vol", self.vol)         
