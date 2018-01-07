@@ -2,13 +2,8 @@ import sys
 sys.path.append("pyalgotrade-develop")
 from trade_strategy import MA_Stragtegy
 from pyalgotrade import strategy
-from pyalgotrade.technical import ma
-from pyalgotrade.technical import cross
-from pyalgotrade import dataseries
-from Record import Record
-from trade_report import trade_report
 
-from analysis import section_analyzer
+
 class StrategyManager(strategy.BacktestingStrategy):
     def __init__(self, feed, instrument,section_analyzer, **kwargs):
         ''' '''

@@ -5,9 +5,10 @@ from pyalgotrade import strategy
 import trade_report
 from trade_report import trade_report
 from factor.mdd import mdd
+import datetime
 
 class StrategyManager(strategy.BacktestingStrategy):
-    def __init__(self, feed, instrument,section_analyzer, **kwargs):
+    def __init__(self, feed, instrument,section_analyzer,prefix='',postfix='', **kwargs):
         ''' '''
         super(StrategyManager, self).__init__(feed)
         self.__position = None
@@ -17,7 +18,7 @@ class StrategyManager(strategy.BacktestingStrategy):
 
         #self.strategys.append(MA_Stragtegy(feed,instrument,5))
         self.section_analyzer = section_analyzer
-        self.report = trade_report(str(instrument))
+        self.report = trade_report(prefix+str(instrument)+postfix)
         self.mdd_obj = mdd()
 
         pass
@@ -74,8 +75,8 @@ class StrategyManager(strategy.BacktestingStrategy):
 
                 #if strategy.long(bars):
                 if strategy.long_signal():
-                    #shares = int(1000 / bars[self.__instrument].getPrice())
-                    shares = int(self.getBroker().getEquity() / bars[self.__instrument].getPrice())
+                    shares = int(1000 / bars[self.__instrument].getPrice())
+                    #shares = int(self.getBroker().getEquity() / bars[self.__instrument].getPrice())
                     self.__position = self.enterLong(self.__instrument, shares, True)
                     self.section_analyzer.item(bars.getDateTime(), "long", self.getBroker().getEquity(),
                                                self.walkaround_share(shares), price, shares)
@@ -110,6 +111,7 @@ from signals.macd import *
 from  signals.bband2 import *
 from  signals.kd import *
 from  signals.ma import *
+from signals.rsi import rsi_signal
 from pyalgotrade.stratanalyzer import sharpe
 from pyalgotrade.stratanalyzer import drawdown
 from pyalgotrade.stratanalyzer import trades
@@ -123,27 +125,30 @@ def main(plot):
     #execfile('user_strategy.py', checknamespace)
     #execfile('bband_strategy.py',checknamespace)
     #user_strategy = b
-    instrument = '1234'
+    instrument = '1102'
+    #instrument='1102'
+    #instrument='1301'
+    #instrument='1303'
+    output_prefix="report-"
+    #output_postfix = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
+    output_prefix = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M-")
+
+    csvfile="tw50_test/"+instrument+'.csv'
     feed = googlefeed.Feed()
     #feed.addBarsFromCSV(instrument,"2030.csv")
 
-    #feed.addBarsFromCSV(instrument,"tw50_test/1102.csv")
     #feed.setBarFilter(DateRangeFilter(       datetime.strptime("2015-11-1","%Y-%m-%d"),         datetime.strptime("2016-2-1","%Y-%m-%d")))
-    #feed.addBarsFromCSV(instrument,"tw50_test/1102.csv")
-    #feed.addBarsFromCSV(instrument,"tw50_test/1301.csv")
-    #feed.addBarsFromCSV(instrument, "tw50_test/1303.csv")
-    feed.addBarsFromCSV(instrument, "tw50_test/1326.csv")
+    feed.addBarsFromCSV(instrument, csvfile)
     #execfile('bband_strategy.py',checknamespace)
     #StrategyManager= checknamespace['BBands']
-    bBandsPeriod = 40
-    bBandsPeriod = 20
     section_ana = section_analyzer()
-    strat = StrategyManager(feed, instrument,section_ana)
-    strat.attach_strategy(DMA_signal(strat,feed,instrument,20,60))
+    strat = StrategyManager(feed, instrument,section_ana,output_prefix)
+    #strat.attach_strategy(DMA_signal(strat,feed,instrument,20,60))
     #strat.attach_strategy(macd_signal(strat,feed,instrument,12,26,9))
     #strat.attach_strategy(trend_signal(strat,feed,instrument,20))
     #strat.attach_strategy(kd_signal(strat,feed,instrument,9,3))
     #strat.attach_strategy(bband_signal(strat,feed,instrument,20))
+    strat.attach_strategy(rsi_signal(strat,feed,instrument,10))
     '''
     sharpeRatioAnalyzer = sharpe.SharpeRatio()
     strat.attachAnalyzer(sharpeRatioAnalyzer)

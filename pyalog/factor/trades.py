@@ -14,6 +14,14 @@ maxdraw down
 compare information: needed a base like market generic benifit rate or bank ratio
 sharp ratie
 '''
+'''
+experience rates:
+1. max rates
+2. net profilio >lost*10
+3. min trade num
+4. win rate
+5. avage win/avage lost > 1.5
+'''
 class section_analyzer:
     def __init__(self):
         self.datetimes = [] # to numpy?
@@ -58,6 +66,8 @@ class section_analyzer:
         rates= []
         positive_rates=[]
         negtive_rates=[]
+        max_rates= None
+        min_rates=None
         for i in range(len(self.type)):
             if (self.type[i] == "long_exit"):
                 rates.append(self.diff_rate[i])
@@ -65,7 +75,10 @@ class section_analyzer:
                     positive_rates.append(self.diff_rate[i])
                 else:
                     negtive_rates.append(self.diff_rate[i])
-
+                if max_rates < self.diff_rate[i]:
+                    max_rates = self.diff_rate[i]
+                if min_rates>  self.diff_rate[i]:
+                    min_rates =  self.diff_rate[i]
             pass
         print "trade num :",len(rates)
         print "rate mean: " ,np.mean(rates)
@@ -73,9 +86,11 @@ class section_analyzer:
         print "+ num:",len(positive_rates)
         print "+rate mean: ", np.mean(positive_rates)
         print "+rate std :", np.std(positive_rates)
+        print "+max rate:",np.max(positive_rates)
         print "- num:",len(negtive_rates)
         print "-rate mean: ", np.mean(negtive_rates)
         print "-rate std :", np.std(negtive_rates)
+        print "-min rate:", np.min(negtive_rates)
         print "rates:" ,rates
         #for each in self.diff_rate: print each
 
