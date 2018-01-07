@@ -10,6 +10,7 @@ from pyalgotrade.technical import bollinger
 from pyalgotrade.technical import cross
 from pyalgotrade.technical import ma
 from trend import *
+from factor.dated_datas import *
 class baseSignal:
     def __init__(self,strategy,feed, instrument):
         self.strategy = strategy
@@ -111,6 +112,23 @@ class macd_signal(baseSignal):
             return True
         return False
         pass
+    def long_signal(self):
+        #if cross.cross_above(self.fast_ma, self.slow_ma) :#and self.__trend.trend_current_ratio() >=0:
+        #    return True
+        if self.macd.getHistogram()[-1]> 0 and self.macd.getHistogram()[-2] <=0 and \
+                        self.macd.getSignal()[-1] > 0 :#and self.slow__trend.trend_current_ratio() >=0:
+            return True
+        return False
+        pass
+    def short_signal(self):
+        #if cross.cross_below(self.fast_ma, self.slow_ma) :#and self.__trend.trend_current_ratio() >=0:
+
+        if self.macd.getHistogram()[-1] < 0 and self.macd.getHistogram()[-2] >= 0:#  and self.macd.getSignal()[-1] < 0:
+        #if (self.macd.getHistogram()[-1] < 0 and self.macd.getHistogram()[-2] >= 0 )or self.slow__trend.trend_current_ratio() < 0:
+
+            return True
+        return False
+        pass
 
     def plot_init(self, plot):
         if plot:  # plot:
@@ -132,4 +150,18 @@ class macd_signal(baseSignal):
         pass
 
 
-
+    def save(self):
+        inst = {}
+        inst['names'] = []
+        names = inst['names']
+        inst['datas'] = []
+        datas = inst['datas']
+        names.append('singal')
+        signal = self.macd.getSignal()
+        signal_dated_data = dated_data(signal.getDateTimes(), signal.getValues())
+        datas.append(signal_dated_data.save())
+        names.append('hist')
+        hist = self.macd.getHistogram()
+        hist_dated_data = dated_data(hist.getDateTimes(), hist.getValues())
+        datas.append(hist_dated_data.save())
+        return inst

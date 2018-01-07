@@ -3,15 +3,47 @@ import sys
 sys.path.append("pyalgotrade-develop")
 import pickle
 from datetime import *
-import pandas as pd
 import matplotlib.pyplot as pyplot
-from pyalgotrade import dataseries
+from factor.trades import section_analyzer
+
+from factor.mdd import mdd
+from factor.dated_datas import dated_data
+'''
+
+
+'''
 class trade_report:
     def __init__(self,name):
         self.timestamp=datetime.now()
         self.name=name
+        self.infos = {}
     def save(self):
-        pickle.dump(self, open(self.name+".pickle","wb"))
+        pickle.dump(self.infos, open(self.name+".pickle","wb"))
+
+    def add(self,name,val):
+        self.infos[name] = val
+
+    def view(self):
+        for each in self.infos:
+            if each == 'max drawdown':
+                inst = mdd.load(self.infos['max drawdown'])
+                inst.view()
+            elif each == 'trade':
+                inst = section_analyzer.load(self.infos['trade'])
+                inst.view()
+            elif each == 'trend':
+                inst = self.infos['trend']
+                for each in inst['datas']:
+                    datas =dated_data(each['dates'],each['datas'])
+                    datas.view()
+                    #print each
+                for each in inst['names']:
+                    print each
+
+
+
+
+
 
     '''pandas csv data'''
     def data(self,data):
@@ -23,9 +55,10 @@ class trade_report:
     def record(self,record):
         self.record=record
 
-    def get_algo_report(filename):
+    def get_report(filename):
         return pickle.load(open(filename,"rb"))
 
+    @staticmethod
     def result_plot(series):
         values = []
         # for dateTime in series.getDateTimes():
@@ -38,8 +71,13 @@ class trade_report:
         # plt.yaxis.set_major_formatter(ticker.ScalarFormatter(useOffset=False))
         pyplot.show()
 
-    pass
+    @staticmethod
+    def load(filename):
+        inst = trade_report('report')
+        inst.infos = pickle.load(open(filename, "rb"))
+        return inst
 
+    pass
 
 
 if __name__ == "__main__" :

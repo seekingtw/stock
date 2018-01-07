@@ -1,5 +1,5 @@
 import sys
-#sys.path.append("pyalgotrade-develop")
+sys.path.append("pyalgotrade-develop")
 from pyalgotrade import strategy
 from pyalgotrade import plotter
 from pyalgotrade.tools import quandl
@@ -9,7 +9,7 @@ from pyalgotrade import broker as basebroker
 from pyalgotrade import plotter
 from pyalgotrade.technical import bollinger
 from pyalgotrade.technical import cross
-from trend import *
+from signals.trend import *
 class baseSignal:
     def __init__(self):
         pass
@@ -159,7 +159,6 @@ class BBand_strategy(baseSignal):
             self.plt.getInstrumentSubplot(self.__instrument).addDataSeries("lower", self.getBollingerBands().getLowerBand())
             self.plt.getOrCreateSubplot("trend").addDataSeries("tend", self.__trend.getTrend())
         pass
-
 
     def plot_show(self):
         self.plt.plot()
