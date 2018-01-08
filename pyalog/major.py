@@ -8,7 +8,7 @@ from factor.mdd import mdd
 import datetime
 
 class StrategyManager(strategy.BacktestingStrategy):
-    def __init__(self, feed, instrument,section_analyzer,prefix='',postfix='', **kwargs):
+    def __init__(self, feed, instrument,section_analyzer, **kwargs):
         ''' '''
         super(StrategyManager, self).__init__(feed)
         self.__position = None
@@ -18,10 +18,12 @@ class StrategyManager(strategy.BacktestingStrategy):
 
         #self.strategys.append(MA_Stragtegy(feed,instrument,5))
         self.section_analyzer = section_analyzer
-        self.report = trade_report(prefix+str(instrument)+postfix)
+
         self.mdd_obj = mdd()
 
         pass
+    def crate_report (self,prefix='',postfix=''):
+        self.report = trade_report(prefix+str(self.__instrument)+postfix)
     def attach_strategy(self,strategy):
         self.strategys.append(strategy)
         pass
@@ -108,7 +110,7 @@ from factor.trades import section_analyzer
 #from bband import *
 #from signal.bband2 import *
 from signals.macd import *
-from  signals.bband2 import *
+from  signals.bband import *
 from  signals.kd import *
 from  signals.ma import *
 from signals.rsi import rsi_signal
@@ -131,24 +133,36 @@ def main(plot):
     #instrument='1303'
     output_prefix="report-"
     #output_postfix = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
-    output_prefix = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M-")
+    output_postfix = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M-")
 
     csvfile="tw50_test/"+instrument+'.csv'
     feed = googlefeed.Feed()
+    signal_name = 'bband'
     #feed.addBarsFromCSV(instrument,"2030.csv")
-
+    strategy_dict={'DMA':DMA_signal,
+                   'macd':macd_signal,
+                   'trend':trend_signal,
+                   'kd':kd_signal,
+                   'bband':bband_signal,
+                   'rsi':rsi_signal}
+    signal= strategy_dict[signal_name]
     #feed.setBarFilter(DateRangeFilter(       datetime.strptime("2015-11-1","%Y-%m-%d"),         datetime.strptime("2016-2-1","%Y-%m-%d")))
     feed.addBarsFromCSV(instrument, csvfile)
     #execfile('bband_strategy.py',checknamespace)
     #StrategyManager= checknamespace['BBands']
     section_ana = section_analyzer()
-    strat = StrategyManager(feed, instrument,section_ana,output_prefix)
+    strat = StrategyManager(feed, instrument,section_ana)
     #strat.attach_strategy(DMA_signal(strat,feed,instrument,20,60))
     #strat.attach_strategy(macd_signal(strat,feed,instrument,12,26,9))
     #strat.attach_strategy(trend_signal(strat,feed,instrument,20))
     #strat.attach_strategy(kd_signal(strat,feed,instrument,9,3))
     #strat.attach_strategy(bband_signal(strat,feed,instrument,20))
-    strat.attach_strategy(rsi_signal(strat,feed,instrument,10))
+    #strat.attach_strategy(rsi_signal(strat,feed,instrument,10))
+
+    ## to fix
+    strat.attach_strategy(signal(strat,feed,instrument,20))
+    output_postfix = signal_name
+    strat.crate_report(output_prefix,output_postfix)
     '''
     sharpeRatioAnalyzer = sharpe.SharpeRatio()
     strat.attachAnalyzer(sharpeRatioAnalyzer)
@@ -174,8 +188,6 @@ def main(plot):
     print ("drawback check")
     strat.check()
     strat.save()
-    #report = trade_report.load('1234.pickle')
-    #report.view()
 
 
     #list1=  strat.get_mdds()

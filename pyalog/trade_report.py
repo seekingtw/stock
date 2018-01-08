@@ -33,15 +33,15 @@ class trade_report:
                 inst.view()
             elif each == 'trend':
                 inst = self.infos['trend']
-                for each in inst['datas']:
+                for i,each in enumerate(inst['datas']):
                     datas =dated_data(each['dates'],each['datas'])
-                    datas.view()
+                    datas.view(inst['names'][i],i+1==len(inst['names']))
+                    #self.plot_each(datas,inst['datas'][-1])
                     #print each
-                for each in inst['names']:
-                    print each
-
-
-
+                #for each in inst['names']:
+                #    print each
+                datas =dated_data(inst['vol']['dates'],inst['vol']['datas'])
+                datas.view('vol', True)
 
 
 
@@ -57,7 +57,16 @@ class trade_report:
 
     def get_report(filename):
         return pickle.load(open(filename,"rb"))
+    @staticmethod
 
+    def plot_each(series,end = 0):
+        values = []
+        # for dateTime in series.getDateTimes():
+        #    values.append(series.getValue(dateTime))
+        pyplot.plot(series.getDateTimes(), series.getValues())
+        if end == series:
+            #pyplot.show()
+            pass
     @staticmethod
     def result_plot(series):
         values = []
@@ -97,5 +106,7 @@ if __name__ == "__main__" :
     print (a)
     print (a.data)
     '''
+    report = trade_report.load('2018-01-08-22:02-1102.pickle')
+    report.view()
 
     pass

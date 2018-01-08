@@ -181,6 +181,10 @@ class bband_signal(baseSignal):
         low = self.getBollingerBands().getLowerBand()
         low_dated_data= dated_data(low.getDateTimes(),low.getValues())
         datas.append(low_dated_data.save())
+        price_dated_data= dated_data(self.prices.getDateTimes(),self.prices.getValues())
+        datas.append(price_dated_data.save())
+        names.append('price')
+        inst['vol'] = dated_data(self.vol.getDateTimes(),self.vol.getValues()).save()
         return inst
 
     def plot_show(self):

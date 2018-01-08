@@ -14,7 +14,7 @@ class dated_data:
     @staticmethod
     def load(inst):
         return dated_data(inst['dates'],inst['datas'])
-
+    '''
     def view(self):
         values = []
         # for dateTime in series.getDateTimes():
@@ -27,3 +27,19 @@ class dated_data:
         # plt.yaxis.set_major_formatter(ticker.ScalarFormatter(useOffset=False))
         pyplot.show()
 
+    '''
+
+    def view(self,name,end = False):
+        values = []
+        # for dateTime in series.getDateTimes():
+        #    values.append(series.getValue(dateTime))
+        #fig, axes = pyplot.subplots(nrows=1, sharex=True, squeeze=False)
+        fig=pyplot.gcf()
+        pyplot.plot(self.dates, self.datas,label=name)
+        fig.autofmt_xdate()
+        pyplot.legend()
+        # plt.legend(subPlot.getAllSeries().keys(), shadow=True, loc="best")
+        # Don't scale the Y axis
+        # plt.yaxis.set_major_formatter(ticker.ScalarFormatter(useOffset=False))
+        if end == True:
+            pyplot.show()

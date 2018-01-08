@@ -143,6 +143,8 @@ class section_analyzer:
     def view(self):
         if len(self.profit) == 0: self.analyze()
         print len(self.profilio)
+        if len(self.price_diff) == 0:
+            self.analyze()
         print ("i , date, type,profilio,profit,position,price,share, diff_price")
         for i in range(len(self.profilio)):
             # print i
