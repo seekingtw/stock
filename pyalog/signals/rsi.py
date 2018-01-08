@@ -7,36 +7,7 @@ from signals.trend import TrendRatio
 from factor.dated_datas import  dated_data
 from pyalgotrade.technical.rsi import RSI
 from pyalgotrade import plotter
-'''
-class baseSignal:
-    def __init__(self,strategy,feed, instrument):
-        self.strategy = strategy
-        self.instrument = instrument
-        self.prices = feed[instrument].getPriceDataSeries()
-        self.vol = feed[instrument].getVolumeDataSeries()
-        #self.plot_init(True)
-        pass
-    def long_signal(self):
-        pass
-    def short_signal(self):
-        pass
-    def is_long(self):
-        pass
-    def is_short(self):
-        pass
 
-
-    def plot_init(self, plot):
-        if plot:  # plot:
-            self.plt = plotter.StrategyPlotter(self.strategy, True, True, True)
-            self.plt.getOrCreateSubplot("vol").addDataSeries("vol", self.vol)
-        pass
-
-
-    def plot_show(self):
-        self.plt.plot()
-        pass
-'''
 class rsi_signal(baseSignal,object):
     def __init__(self,strategy,feed, instrument,period):
         super(rsi_signal, self).__init__(strategy, feed, instrument)
@@ -74,6 +45,7 @@ class rsi_signal(baseSignal,object):
         rsi = self.rsi
         rsi_dated_data = dated_data(rsi.getDateTimes(), rsi.getValues())
         datas.append(rsi_dated_data.save())
+        inst['vol'] = dated_data(self.vol.getDateTimes(),self.vol.getValues()).save()
         return inst
 
     def plot_init(self, plot):

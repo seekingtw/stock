@@ -138,6 +138,9 @@ def main(plot):
     csvfile="tw50_test/"+instrument+'.csv'
     feed = googlefeed.Feed()
     signal_name = 'bband'
+    singal_parameter= {'period':20,'std':2}
+    #signal_name = 'kd'
+    #singal_parameter= {'slow_period':20,'fast_period':5}
     #feed.addBarsFromCSV(instrument,"2030.csv")
     strategy_dict={'DMA':DMA_signal,
                    'macd':macd_signal,
@@ -160,7 +163,7 @@ def main(plot):
     #strat.attach_strategy(rsi_signal(strat,feed,instrument,10))
 
     ## to fix
-    strat.attach_strategy(signal(strat,feed,instrument,20))
+    strat.attach_strategy(signal(strat,feed,instrument,**singal_parameter))
     output_postfix = signal_name
     strat.crate_report(output_prefix,output_postfix)
     '''
@@ -171,8 +174,8 @@ def main(plot):
     '''
     #retAnalyzer = returns.Returns()
     #strat.attachAnalyzer(retAnalyzer)
-    sharpeRatioAnalyzer = sharpe.SharpeRatio()
-    strat.attachAnalyzer(sharpeRatioAnalyzer)
+    #sharpeRatioAnalyzer = sharpe.SharpeRatio()
+    #strat.attachAnalyzer(sharpeRatioAnalyzer)
     drawDownAnalyzer = drawdown.DrawDown()
     strat.attachAnalyzer(drawDownAnalyzer)
     tradesAnalyzer = trades.Trades()

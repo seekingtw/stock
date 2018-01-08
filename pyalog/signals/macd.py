@@ -11,80 +11,28 @@ from pyalgotrade.technical import cross
 from pyalgotrade.technical import ma
 from trend import *
 from factor.dated_datas import *
-class baseSignal:
-    def __init__(self,strategy,feed, instrument):
-        self.strategy = strategy
-        self.instrument = instrument
-        self.prices = feed[instrument].getPriceDataSeries()
-        self.vol = feed[instrument].getVolumeDataSeries()
-        #self.plot_init(True)
-        pass
-    def long_signal(self):
-        pass
-    def short_signal(self):
-        pass
-    def is_long(self):
-        pass
-    def is_short(self):
-        pass
+from signals import baseSignal
 
 
-    def plot_init(self, plot):
-        if plot:  # plot:
-            self.plt = plotter.StrategyPlotter(self.strategy, True, True, True)
-            self.plt.getOrCreateSubplot("vol").addDataSeries("vol", self.vol)
-        pass
+class macd_signal(baseSignal,object):
+    def __init__(self,strategy,feed, instrument,signal_period,**kwargs):
+        '''
 
-
-    def plot_show(self):
-        self.plt.plot()
-        pass
-
-
-from pyalgotrade import strategy
-from pyalgotrade import plotter
-from pyalgotrade.tools import quandl
-from pyalgotrade.technical import bollinger
-from pyalgotrade.stratanalyzer import sharpe
-from pyalgotrade import broker as basebroker
-from pyalgotrade import plotter
-from pyalgotrade.technical import bollinger
-from pyalgotrade.technical import cross
-from pyalgotrade.technical import ma
-from pyalgotrade.technical import macd
-from trend import *
-class baseSignal:
-    def __init__(self,strategy,feed, instrument):
-        self.strategy = strategy
-        self.instrument = instrument
-        self.prices = feed[instrument].getPriceDataSeries()
-        self.vol = feed[instrument].getVolumeDataSeries()
-        #self.plot_init(True)
-        pass
-    def long_signal(self):
-        pass
-    def short_signal(self):
-        pass
-    def is_long(self):
-        pass
-    def is_short(self):
-        pass
-
-
-    def plot_init(self, plot):
-        if plot:  # plot:
-            self.plt = plotter.StrategyPlotter(self.strategy, True, True, True)
-            self.plt.getOrCreateSubplot("vol").addDataSeries("vol", self.vol)
-        pass
-
-
-    def plot_show(self):
-        self.plt.plot()
-        pass
-
-class macd_signal(baseSignal):
-    def __init__(self,strategy,feed, instrument,fast_period,slow_period,signal_period):
+        :param strategy:
+        :param feed:
+        :param instrument:
+        :param fast_period:
+        :param slow_period:
+        :param signal_period:
+        :param kwargs:
+        signal_period
+        fast_period
+        slow_period
+        '''
         super(macd_signal, self).__init__(strategy, feed, instrument)
+        self.set_member('fast_period',5,kwargs)
+        self.set_member('slow_period', 20,kwargs)
+        self.set_member('short_signal', 3, kwargs)
         self.macd= macd.MACD(feed[instrument].getCloseDataSeries(), fast_period,slow_period,signal_period)
         #self.__strategy= strategy
         #self.__instrument = instrument
@@ -164,4 +112,6 @@ class macd_signal(baseSignal):
         hist = self.macd.getHistogram()
         hist_dated_data = dated_data(hist.getDateTimes(), hist.getValues())
         datas.append(hist_dated_data.save())
+        inst['vol'] = dated_data(self.vol.getDateTimes(),self.vol.getValues()).save()
+
         return inst

@@ -11,37 +11,22 @@ from pyalgotrade.technical import cross
 from pyalgotrade.technical import ma
 from trend import *
 from factor.dated_datas import *
-class baseSignal:
-    def __init__(self,strategy,feed, instrument):
-        self.strategy = strategy
-        self.instrument = instrument
-        self.prices = feed[instrument].getPriceDataSeries()
-        self.vol = feed[instrument].getVolumeDataSeries()
-        #self.plot_init(True)
-        pass
-    def long_signal(self):
-        pass
-    def short_signal(self):
-        pass
-    def is_long(self):
-        pass
-    def is_short(self):
-        pass
+from signals import baseSignal
+class DMA_signal(baseSignal,object):
+    def __init__(self,strategy,feed, instrument,**kwargs):
+        '''
 
-
-    def plot_init(self, plot):
-        if plot:  # plot:
-            self.plt = plotter.StrategyPlotter(self.strategy, True, True, True)
-            self.plt.getOrCreateSubplot("vol").addDataSeries("vol", self.vol)
-        pass
-
-
-    def plot_show(self):
-        self.plt.plot()
-        pass
-
-class DMA_signal(baseSignal):
-    def __init__(self,strategy,feed, instrument,fast_period,slow_period):
+        :param strategy:
+        :param feed:
+        :param instrument:
+        :param fast_period:
+        :param slow_period:
+        :param kwargs:
+            fast_period
+            slow_period
+        '''
+        self.set_member('fast_period',5,kwargs)
+        self.set_member('slow_period', 20,kwargs)
         super(DMA_signal, self).__init__(strategy, feed, instrument)
         self.fast_ma= ma.SMA(feed[instrument].getCloseDataSeries(), fast_period)
         self.fast_period = fast_period
@@ -103,6 +88,11 @@ class DMA_signal(baseSignal):
         slow_ma = self.slow_ma
         slow_ma_dated_data = dated_data(slow_ma.getDateTimes(), slow_ma.getValues())
         datas.append(slow_ma_dated_data.save())
+        price_dated_data= dated_data(self.prices.getDateTimes(),self.prices.getValues())
+        datas.append(price_dated_data.save())
+        names.append('price')
+        inst['vol'] = dated_data(self.vol.getDateTimes(),self.vol.getValues()).save()
+
         return inst
 
     def plot_show(self):

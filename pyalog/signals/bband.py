@@ -16,40 +16,23 @@ from pyalgotrade.technical import stoch
 from trend import *
 from pyalgotrade.technical import bollinger
 from factor.dated_datas import *
-class baseSignal:
-    def __init__(self,strategy,feed, instrument):
-        self.strategy = strategy
-        self.instrument = instrument
-        self.prices = feed[instrument].getPriceDataSeries()
-        self.vol = feed[instrument].getVolumeDataSeries()
-        #self.plot_init(True)
-        pass
-    def long_signal(self):
-        pass
-    def short_signal(self):
-        pass
-    def is_long(self):
-        pass
-    def is_short(self):
-        pass
-
-
-    def plot_init(self, plot):
-        if plot:  # plot:
-            self.plt = plotter.StrategyPlotter(self.strategy, True, True, True)
-            self.plt.getOrCreateSubplot("vol").addDataSeries("vol", self.vol)
-        pass
-
-
-    def plot_show(self):
-        self.plt.plot()
-        pass
-
-class bband_signal(baseSignal):
-    def __init__(self,strategy,feed, instrument, bBandsPeriod):
+from signals import baseSignal
+class bband_signal(baseSignal,object):
+    def __init__(self,strategy,feed, instrument, **kwargs):
+        '''
+        :param strategy:
+        :param feed:
+        :param instrument:
+        :param bBandsPeriod: ##
+        :param kwargs:
+from signals import baseSignal
+         std:
+        '''
         super(bband_signal, self).__init__(strategy, feed, instrument)
+        self.set_member('period',20,kwargs)
+        self.set_member('std', 2, kwargs)
         self.__position = None#remove later
-        self.__bbands = bollinger.BollingerBands(feed[instrument].getCloseDataSeries(), bBandsPeriod, 2)
+        self.__bbands = bollinger.BollingerBands(feed[instrument].getCloseDataSeries(), self.period, self.std)
         self.__trend = TrendRatio(self.prices,20)
         self.plot_init(True)
     def list_info(self,name, list,times):

@@ -89,44 +89,25 @@ class TrendRatio(object):
 
         return  self.trend_data[-1]
 
-class baseSignal:
-    def __init__(self,strategy,feed, instrument):
-        self.strategy = strategy
-        self.instrument = instrument
-        self.prices = feed[instrument].getPriceDataSeries()
-        self.vol = feed[instrument].getVolumeDataSeries()
-        #self.plot_init(True)
-        pass
-    def long_signal(self):
-        pass
-    def short_signal(self):
-        pass
-    def is_long(self):
-        pass
-    def is_short(self):
-        pass
+from signals import baseSignal
+class trend_signal(baseSignal,object):
+    def __init__(self,strategy,feed, instrument,period,**kwargs):
+        '''
 
-
-    def plot_init(self, plot):
-        if plot:  # plot:
-            self.plt = plotter.StrategyPlotter(self.strategy, True, True, True)
-            self.plt.getOrCreateSubplot("vol").addDataSeries("vol", self.vol)
-        pass
-
-
-    def plot_show(self):
-        self.plt.plot()
-        pass
-
-
-class trend_signal(baseSignal):
-    def __init__(self,strategy,feed, instrument,period):
+        :param strategy:
+        :param feed:
+        :param instrument:
+        :param period:
+        :param kwargs:
+         period
+        '''
         #super(trend_signal,self).__init__(strategy,feed,instrument)
         #self.__strategy= strategy
         #self.__instrument = instrument
         #self.__prices = feed[instrument].getPriceDataSeries()
         #super(trend_signal, self).__init__(strategy, feed, instrument)
         #print type(trend_signal)
+        self.set_member('period',kwargs)
         super(trend_signal,self).__init__(strategy, feed, instrument)
         self.trend = TrendRatio(self.prices, period)
         self.plot_init(True)

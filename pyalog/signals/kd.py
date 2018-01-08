@@ -15,37 +15,25 @@ from pyalgotrade.technical import ma
 from pyalgotrade.technical import stoch
 from trend import *
 from factor.dated_datas import *
-class baseSignal:
-    def __init__(self,strategy,feed, instrument):
-        self.strategy = strategy
-        self.instrument = instrument
-        self.prices = feed[instrument].getPriceDataSeries()
-        self.vol = feed[instrument].getVolumeDataSeries()
-        #self.plot_init(True)
-        pass
-    def long_signal(self):
-        pass
-    def short_signal(self):
-        pass
-    def is_long(self):
-        pass
-    def is_short(self):
-        pass
+from signals import baseSignal
 
+class kd_signal(baseSignal,object):
+    def __init__(self,strategy,feed, instrument,**kwargs):
+        '''
 
-    def plot_init(self, plot):
-        if plot:  # plot:
-            self.plt = plotter.StrategyPlotter(self.strategy, True, True, True)
-            self.plt.getOrCreateSubplot("vol").addDataSeries("vol", self.vol)
-        pass
-
-
-    def plot_show(self):
-        self.plt.plot()
-        pass
-
-class kd_signal(baseSignal):
-    def __init__(self,strategy,feed, instrument,fast_period,slow_period):
+        :param strategy:
+        :param feed:
+        :param instrument:
+        :param fast_period:
+        :param slow_period:
+        :param kwargs:
+            fast_period
+            slow_period
+        '''
+        self.set_member('fast_period',5,kwargs)
+        self.set_member('slow_period', 20,kwargs)
+        fast_period = self.fast_period
+        slow_period = self.slow_period
         super(kd_signal, self).__init__(strategy, feed, instrument)
         self.fast_ma= ma.SMA(feed[instrument].getCloseDataSeries(), fast_period)
         self.fast_period = fast_period
@@ -137,4 +125,6 @@ class kd_signal(baseSignal):
         mid = self.kd.getKD_d()
         mid_dated_data = dated_data(mid.getDateTimes(), mid.getValues())
         datas.append(mid_dated_data.save())
+        inst['vol'] = dated_data(self.vol.getDateTimes(),self.vol.getValues()).save()
+
         return inst

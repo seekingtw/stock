@@ -24,6 +24,13 @@ class baseSignal:
     def plot_show(self):
         self.plt.plot()
         pass
+    def set_member(self,paramter,default,dict_args,member = None):
+        if paramter in dict_args:
+            if member == None:
+                member=paramter
+            self.__dict__[member] = dict_args[paramter]
+        else:
+            self.__dict__[member]=default
 
 def hello():
     print "hello"
