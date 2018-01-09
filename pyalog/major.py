@@ -118,6 +118,37 @@ from pyalgotrade.stratanalyzer import sharpe
 from pyalgotrade.stratanalyzer import drawdown
 from pyalgotrade.stratanalyzer import trades
 
+def run(feed,instrument,signal,signal_parameter,signal_name,output_prefix,output_postfix):
+    section_ana = section_analyzer()
+    strat = StrategyManager(feed, instrument,section_ana)
+    strat.attach_strategy(signal(strat,feed,instrument,**signal_parameter))
+
+    output_postfix = signal_name
+    strat.crate_report(output_prefix,output_postfix)
+    strat.run()
+    print ("drawback check")
+    strat.check()
+    strat.save()
+
+
+    #list1=  strat.get_mdds()
+    #print list1
+    strat.plot()
+    pass
+
+def opt_gen_list():
+    #read fine
+    #gen opt_list
+    pass
+def run_optimize(feed,instrument):
+    opt_list = opt_gen_list()
+
+    #opt_run()
+    for each in range(opt_list):
+        print each," loop in ",len(opt_list)," loops"
+        (signal,signal_parameter,signal_name,output_prefix,output_postfix) = opt_list[each]
+        run(feed,instrument,signal,signal_parameter,signal_name,output_prefix,output_postfix)
+
 
 def main(plot):
     test_string=""
@@ -134,11 +165,16 @@ def main(plot):
     output_prefix="report-"
     #output_postfix = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
     output_postfix = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M-")
-
+    #strat.attach_strategy(DMA_signal(strat,feed,instrument,20,60))
+    #strat.attach_strategy(macd_signal(strat,feed,instrument,12,26,9))
+    #strat.attach_strategy(trend_signal(strat,feed,instrument,20))
+    #strat.attach_strategy(kd_signal(strat,feed,instrument,9,3))
+    #strat.attach_strategy(bband_signal(strat,feed,instrument,20))
+    #strat.attach_strategy(rsi_signal(strat,feed,instrument,10))
     csvfile="tw50_test/"+instrument+'.csv'
     feed = googlefeed.Feed()
     signal_name = 'bband'
-    singal_parameter= {'period':20,'std':2}
+    signal_parameter= {'period':20,'std':2}
     #signal_name = 'kd'
     #singal_parameter= {'slow_period':20,'fast_period':5}
     #feed.addBarsFromCSV(instrument,"2030.csv")
@@ -152,26 +188,20 @@ def main(plot):
     #feed.setBarFilter(DateRangeFilter(       datetime.strptime("2015-11-1","%Y-%m-%d"),         datetime.strptime("2016-2-1","%Y-%m-%d")))
     feed.addBarsFromCSV(instrument, csvfile)
     #execfile('bband_strategy.py',checknamespace)
-    #StrategyManager= checknamespace['BBands']
+
+    run(feed, instrument,signal,signal_parameter,signal_name,output_prefix,output_postfix)
+    '''
     section_ana = section_analyzer()
     strat = StrategyManager(feed, instrument,section_ana)
-    #strat.attach_strategy(DMA_signal(strat,feed,instrument,20,60))
-    #strat.attach_strategy(macd_signal(strat,feed,instrument,12,26,9))
-    #strat.attach_strategy(trend_signal(strat,feed,instrument,20))
-    #strat.attach_strategy(kd_signal(strat,feed,instrument,9,3))
-    #strat.attach_strategy(bband_signal(strat,feed,instrument,20))
-    #strat.attach_strategy(rsi_signal(strat,feed,instrument,10))
-
-    ## to fix
-    strat.attach_strategy(signal(strat,feed,instrument,**singal_parameter))
+    strat.attach_strategy(signal(strat,feed,instrument,**signal_parameter))
     output_postfix = signal_name
     strat.crate_report(output_prefix,output_postfix)
-    '''
+
     sharpeRatioAnalyzer = sharpe.SharpeRatio()
     strat.attachAnalyzer(sharpeRatioAnalyzer)
     maxdrawdown = drawdown.DrawDown()
     strat.attachAnalyzer(maxdrawdown)
-    '''
+
     #retAnalyzer = returns.Returns()
     #strat.attachAnalyzer(retAnalyzer)
     #sharpeRatioAnalyzer = sharpe.SharpeRatio()
@@ -191,11 +221,11 @@ def main(plot):
     print ("drawback check")
     strat.check()
     strat.save()
-
-
     #list1=  strat.get_mdds()
     #print list1
     strat.plot()
+    '''
+
 
 
     '''

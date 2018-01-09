@@ -80,18 +80,26 @@ class section_analyzer:
                 if min_rates>  self.diff_rate[i]:
                     min_rates =  self.diff_rate[i]
             pass
+
         print "trade num :",len(rates)
         print "rate mean: " ,np.mean(rates)
         print "rate std :" , np.std(rates)
-        print "+ num:",len(positive_rates)
-        print "+rate mean: ", np.mean(positive_rates)
-        print "+rate std :", np.std(positive_rates)
-        print "+max rate:",np.max(positive_rates)
-        print "- num:",len(negtive_rates)
-        print "-rate mean: ", np.mean(negtive_rates)
-        print "-rate std :", np.std(negtive_rates)
-        print "-min rate:", np.min(negtive_rates)
-        print "rates:" ,rates
+        if len(positive_rates) >0:
+            print "+ num:",len(positive_rates)
+            print "+rate mean: ", np.mean(positive_rates)
+            print "+rate std :", np.std(positive_rates)
+            print "+max rate:",np.max(positive_rates)
+        else:
+            print "no positive trade"
+
+        if len(negtive_rates) == 0:
+            print "no negtive trade"
+        else:
+            print "- num:",len(negtive_rates)
+            print "-rate mean: ", np.mean(negtive_rates)
+            print "-rate std :", np.std(negtive_rates)
+            print "-min rate:", np.min(negtive_rates)
+            print "rates:" ,rates
         #for each in self.diff_rate: print each
 
     #def save(self,name ):
@@ -122,6 +130,8 @@ class section_analyzer:
         se_report.price_diff= dump_inst['price_diff']
 
     def drawback_check(self ):
+        if len(self.price_diff) == 0:
+            self.analyze()
         print ("i, date, type,price, diff_price,rate")
         for i,each in enumerate (self.price_diff):
             if each < 0 and self.type[i] == "long_exit":
