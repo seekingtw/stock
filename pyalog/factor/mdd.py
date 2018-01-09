@@ -22,7 +22,7 @@ class mdd:
 
         if price < self.mdd_min:
             self.mdd_min = price
-        if price < self.mdd_max:
+        if price <= self.mdd_max:
             self.mdd_period = self.mdd_period + 1
 
     def update_close_position(self):
@@ -32,17 +32,30 @@ class mdd:
 
     def update_by_position(self, price, position):
         if position is None:
-            return
+            if self.helper_position== None:
+                return
+            else:
+                self.mdd_period= self.mdd_period+1
+                return
 
         if self.helper_position != position:
             self.helper_position = position
-            self.update_close_position()
+            #self.update_close_position()
         self.update(price)
 
     def get_max_drawdown(self):
+        if self.mdd_min < self.mdd_max:
+            diff = self.mdd_min - self.mdd_max
+            # self.mdd_rates.append([diff,diff/self.mdd_max ])
+            self.mdd_rates.append(diff / self.mdd_max * 100.0 * -1)
+            self.mdd_diffs.append(diff)
+            self.mdd_max = 0#reset
+            self.mdd_min =0
+        if len(self.mdd_rates) == 0: return 0
         return min(self.mdd_rates)
 
     def get_drawdowns(self):
+
         return self.mdd_rates
 
     def save(self):

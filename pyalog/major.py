@@ -127,8 +127,10 @@ def run(feed,instrument,signal,signal_parameter,signal_name,output_prefix,output
     strat.crate_report(output_prefix,output_postfix)
     strat.run()
     print ("drawback check")
+    strat.get_mdds()
     strat.check()
     strat.save()
+    strat.mdd_obj.view()
 
 
     #list1=  strat.get_mdds()
@@ -173,8 +175,10 @@ def main(plot):
     #strat.attach_strategy(rsi_signal(strat,feed,instrument,10))
     csvfile="tw50_test/"+instrument+'.csv'
     feed = googlefeed.Feed()
+    feed.addBarsFromCSV(instrument, csvfile)
     signal_name = 'bband'
-    signal_parameter= {'period':20,'std':2}
+    #signal_parameter= {'period':20,'std':2}
+    signal_parameter = {'period': 5, 'std': 2}
     #signal_name = 'kd'
     #singal_parameter= {'slow_period':20,'fast_period':5}
     #feed.addBarsFromCSV(instrument,"2030.csv")
@@ -186,10 +190,18 @@ def main(plot):
                    'rsi':rsi_signal}
     signal= strategy_dict[signal_name]
     #feed.setBarFilter(DateRangeFilter(       datetime.strptime("2015-11-1","%Y-%m-%d"),         datetime.strptime("2016-2-1","%Y-%m-%d")))
-    feed.addBarsFromCSV(instrument, csvfile)
     #execfile('bband_strategy.py',checknamespace)
-
+    '''
+    for i in range(3,60+1):
+        csvfile = "tw50_test/" + instrument + '.csv'
+        feed = googlefeed.Feed()
+        feed.addBarsFromCSV(instrument, csvfile)
+        signal_parameter['period'] = i
+        output_prefix= "p"+str(i)+"-"
+        run(feed, instrument, signal, signal_parameter, signal_name, output_prefix, output_postfix)
+    '''
     run(feed, instrument,signal,signal_parameter,signal_name,output_prefix,output_postfix)
+
     '''
     section_ana = section_analyzer()
     strat = StrategyManager(feed, instrument,section_ana)

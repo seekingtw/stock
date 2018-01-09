@@ -155,6 +155,7 @@ class section_analyzer:
         print len(self.profilio)
         if len(self.price_diff) == 0:
             self.analyze()
+        '''
         print ("i , date, type,profilio,profit,position,price,share, diff_price")
         for i in range(len(self.profilio)):
             # print i
@@ -166,4 +167,6 @@ class section_analyzer:
                    self.profilio[i],self.profit[i],self.position[i],
                    self.price[i],self.share[i], self.price_diff[i])
             pass
+        '''
+
         pass

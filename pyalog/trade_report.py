@@ -27,11 +27,13 @@ class trade_report:
         for each in self.infos:
             if each == 'max drawdown':
                 inst = mdd.load(self.infos['max drawdown'])
-                inst.view()
+                if inst != None:
+                    inst.view()
             elif each == 'trade':
                 inst = section_analyzer.load(self.infos['trade'])
                 inst.view()
             elif each == 'trend':
+                continue
                 inst = self.infos['trend']
                 for i,each in enumerate(inst['datas']):
                     datas =dated_data(each['dates'],each['datas'])
