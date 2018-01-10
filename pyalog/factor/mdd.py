@@ -1,41 +1,38 @@
+import pandas as pd
 class mdd:
     def __init__(self):
         self.mdd_min = 0
         self.mdd_max = 0
         # self.mdd_diff =0
-        self.mdd_period = 0
+        #self.mdd_period = 0
         self.mdd_rates = []
         self.mdd_diffs = []
+        self.mdd_price_pair=[] #item(high,low)
+        self.mdd_periods = []
         self.helper_position = None
 
     def update(self, price):
         '''max downdrawdonw'''
         if self.mdd_max < price:
-            if self.mdd_min < self.mdd_max:
-                diff = self.mdd_min - self.mdd_max
-                # self.mdd_rates.append([diff,diff/self.mdd_max ])
-                self.mdd_rates.append(diff / self.mdd_max * 100.0 * -1)
-                self.mdd_diffs.append(diff)
             self.mdd_min = price
             self.mdd_period = 0
             self.mdd_max = price
+            self.mdd_price_pair.append([self.mdd_max, self.mdd_min])
+            self.mdd_diffs.append(0.0)
+            self.mdd_rates.append(0.0)
+            self.mdd_periods.append(0)
 
         if price < self.mdd_min:
             self.mdd_min = price
+            self.mdd_price_pair[-1][1] = price
+            self.mdd_diffs[-1] = diff=self.mdd_min - self.mdd_max
+            self.mdd_rates[-1]= (diff / self.mdd_max * 100.0 )
         if price <= self.mdd_max:
-            self.mdd_period = self.mdd_period + 1
-
-    def update_close_position(self):
-        self.mdd_max = 0
-        self.mdd_min = 0
-        self.mdd_period = 0
+            self.mdd_periods[-1] +=1
 
     def update_by_position(self, price, position):
         if position is None:
             if self.helper_position== None:
-                return
-            else:
-                self.mdd_period= self.mdd_period+1
                 return
 
         if self.helper_position != position:
@@ -44,13 +41,6 @@ class mdd:
         self.update(price)
 
     def get_max_drawdown(self):
-        if self.mdd_min < self.mdd_max:
-            diff = self.mdd_min - self.mdd_max
-            # self.mdd_rates.append([diff,diff/self.mdd_max ])
-            self.mdd_rates.append(diff / self.mdd_max * 100.0 * -1)
-            self.mdd_diffs.append(diff)
-            self.mdd_max = 0#reset
-            self.mdd_min =0
         if len(self.mdd_rates) == 0: return 0
         return min(self.mdd_rates)
 
@@ -60,17 +50,36 @@ class mdd:
 
     def save(self):
         dump_inst = {}
-        dump_inst['rate'] = self.mdd_rates
-        dump_inst['period'] = self.mdd_period
-        dump_inst['diff'] = self.mdd_diffs
+        #dump_inst['rate'] = self.mdd_rats
+
+        #dump_inst['diff'] = self.mdd_diffs
+        s_rate=dump_inst['rate']= pd.Series(self.mdd_rates,name='rate')
+        s_period=dump_inst['period']=pd.Series(self.mdd_periods,name='period')
+        s_diff=dump_inst['diff']= pd.Series(self.mdd_diffs,name = 'diff')
+        '''
+        df_mdd=pd.DataFrame()
+        df_mdd = df_mdd.add(s_diff)
+        df_mdd = df_mdd.add(s_period)
+        df_mdd = df_mdd.add(s_diff)
+        dump_inst['table'] =df_mdd
+        '''
         return dump_inst
 
     @staticmethod
     def load(inst):
         mdd_inst = mdd()
-        mdd_inst.mdd_diffs = inst['diff']
-        mdd_inst.mdd_rates = inst['rate']
-        mdd_inst.mdd_period = inst['period']
+        mdd_inst.mdd_diffs = inst['diff'].values
+        mdd_inst.mdd_rates = inst['rate'].values
+        mdd_inst.mdd_periods = inst['period'].values
+        '''
+        df = inst['table']
+
+        for each in df.columns:
+            print each
+            member_name= 'mdd_'+each+'s'
+            mdd_inst.__dict__[member_name] = df[each].values
+        '''
+
         return mdd_inst
 
     def view(self):

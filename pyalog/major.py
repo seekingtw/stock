@@ -90,7 +90,7 @@ class StrategyManager(strategy.BacktestingStrategy):
         pass
 
         ''' for analyze, notice that currently position is position'''
-        self.mdd_obj.update_by_position(price ,self.__position)
+        self.mdd_obj.update_by_position(self.getBroker().getEquity() ,self.__position)
 
     def get_mdds(self):
         return self.mdd_obj.get_drawdowns()
@@ -135,7 +135,7 @@ def run(feed,instrument,signal,signal_parameter,signal_name,output_prefix,output
 
     #list1=  strat.get_mdds()
     #print list1
-    strat.plot()
+    #strat.plot()
     pass
 
 def opt_gen_list():
@@ -191,7 +191,7 @@ def main(plot):
     signal= strategy_dict[signal_name]
     #feed.setBarFilter(DateRangeFilter(       datetime.strptime("2015-11-1","%Y-%m-%d"),         datetime.strptime("2016-2-1","%Y-%m-%d")))
     #execfile('bband_strategy.py',checknamespace)
-    '''
+
     for i in range(3,60+1):
         csvfile = "tw50_test/" + instrument + '.csv'
         feed = googlefeed.Feed()
@@ -201,7 +201,7 @@ def main(plot):
         run(feed, instrument, signal, signal_parameter, signal_name, output_prefix, output_postfix)
     '''
     run(feed, instrument,signal,signal_parameter,signal_name,output_prefix,output_postfix)
-
+    '''
     '''
     section_ana = section_analyzer()
     strat = StrategyManager(feed, instrument,section_ana)

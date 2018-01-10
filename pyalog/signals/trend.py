@@ -6,6 +6,8 @@ sys.path.append("pyalgotrade-develop")
 from pyalgotrade import dataseries
 from pyalgotrade.technical import ma
 from pyalgotrade import plotter
+from  factor.dated_datas  import dated_data
+import pandas as pd
 
 def average(list):
     try:
@@ -126,6 +128,19 @@ class trend_signal(baseSignal,object):
         return False
         pass
 
+
+    def save(self):
+        inst = {}
+        inst['names'] = []
+        names = inst['names']
+        inst['datas'] = []
+        datas = inst['datas']
+        names.append('moment')
+        trend = self.trend
+        trend_dated_data = dated_data(trend.getDateTimes(), trend.getValues())
+        datas.append(trend_dated_data.save())
+        inst['vol'] = dated_data(self.vol.getDateTimes(),self.vol.getValues()).save()
+        return inst
 
     def plot_init(self, plot):
         if plot:  # plot:
