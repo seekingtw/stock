@@ -53,21 +53,26 @@ class mdd:
         #dump_inst['rate'] = self.mdd_rats
 
         #dump_inst['diff'] = self.mdd_diffs
+        '''
         s_rate=dump_inst['rate']= pd.Series(self.mdd_rates,name='rate')
         s_period=dump_inst['period']=pd.Series(self.mdd_periods,name='period')
         s_diff=dump_inst['diff']= pd.Series(self.mdd_diffs,name = 'diff')
+
         '''
+
+
         df_mdd=pd.DataFrame()
-        df_mdd = df_mdd.add(s_diff)
-        df_mdd = df_mdd.add(s_period)
-        df_mdd = df_mdd.add(s_diff)
+        df_mdd['mdd_rates'] = self.mdd_rates
+        df_mdd['mdd_periods'] =self.mdd_periods
+        df_mdd['mdd_diffs'] =self.mdd_diffs
         dump_inst['table'] =df_mdd
-        '''
+
         return dump_inst
 
     @staticmethod
     def load(inst):
         mdd_inst = mdd()
+        '''
         mdd_inst.mdd_diffs = inst['diff'].values
         mdd_inst.mdd_rates = inst['rate'].values
         mdd_inst.mdd_periods = inst['period'].values
@@ -75,10 +80,9 @@ class mdd:
         df = inst['table']
 
         for each in df.columns:
-            print each
-            member_name= 'mdd_'+each+'s'
-            mdd_inst.__dict__[member_name] = df[each].values
-        '''
+            #member_name = each._data[0]
+            mdd_inst.__dict__[each] = df[each].values
+
 
         return mdd_inst
 

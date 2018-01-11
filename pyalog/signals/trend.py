@@ -128,9 +128,10 @@ class trend_signal(baseSignal,object):
         return False
         pass
 
-
     def save(self):
         inst = {}
+        inst['trend'] = dated_data(self.trend.getDateTimes(), self.trend.getValues()).save('trend')
+        '''
         inst['names'] = []
         names = inst['names']
         inst['datas'] = []
@@ -139,7 +140,9 @@ class trend_signal(baseSignal,object):
         trend = self.trend
         trend_dated_data = dated_data(trend.getDateTimes(), trend.getValues())
         datas.append(trend_dated_data.save())
-        inst['vol'] = dated_data(self.vol.getDateTimes(),self.vol.getValues()).save()
+        '''
+
+        inst['vol'] = dated_data(self.vol.getDateTimes(),self.vol.getValues()).save('vol')
         return inst
 
     def plot_init(self, plot):

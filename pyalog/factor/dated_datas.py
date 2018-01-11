@@ -1,14 +1,21 @@
 #from pyalgotrade import dataseries
 import matplotlib.pyplot as pyplot
+import pandas as pd
 class dated_data:
     def __init__(self,dates,datas):
         self.dates = dates
         self.datas = datas
 
-    def save(self  ):
+    def save(self ,name='data' ):
         inst = {}
-        inst['dates'] = self.dates
+        pd_data= pd.DataFrame()
+        pd[name] = self.datas
+        pd.index= self.dates
+        '''
+            inst['dates'] = self.dates
         inst['datas'] = self.datas
+        '''
+
         return inst
 
     @staticmethod
