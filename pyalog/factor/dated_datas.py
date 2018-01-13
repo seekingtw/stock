@@ -9,14 +9,20 @@ class dated_data:
     def save(self ,name='data' ):
         inst = {}
         pd_data= pd.DataFrame()
-        pd[name] = self.datas
+        pd_data[name] = self.datas
         pd.index= self.dates
         '''
             inst['dates'] = self.dates
         inst['datas'] = self.datas
         '''
-
+        inst['series'] = pd_data
         return inst
+
+    def save_dataframe(self,name = "data"  ):
+            pd_data= pd.DataFrame()
+            pd_data[name] = self.datas
+            pd.index= self.dates
+            return pd_data
 
     @staticmethod
     def load(inst):

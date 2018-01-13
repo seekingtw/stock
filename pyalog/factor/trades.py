@@ -33,6 +33,9 @@ class section_analyzer:
         self.share= []
         self.price_diff= []
         self.diff_rate =[]
+        self.rates= []
+        self.positive_rates = []
+        self.negtive_rates = []
         pass
     def item(self, datetime, type,profilio,position,price,share):
         self.datetimes.append(datetime)
@@ -41,6 +44,7 @@ class section_analyzer:
         self.position.append(position)
         self.price.append(price)
         self.share.append(share)
+        print datetime,": ",type,"@",price
         pass
     def  analyze(self):
         previous_profilio = 0
@@ -61,8 +65,7 @@ class section_analyzer:
             else:
                 self.diff_rate.append(0)
             previous_price= self.price[i]
-
-        pass
+        #pass
         rates= []
         positive_rates=[]
         negtive_rates=[]
@@ -80,7 +83,25 @@ class section_analyzer:
                 if min_rates>  self.diff_rate[i]:
                     min_rates =  self.diff_rate[i]
             pass
+        self.rates= rates
+        self.positive_rates = positive_rates
+        self.negtive_rates =negtive_rates
+        #self.detail_report(rates)
+    def get_trade_report(self):
+        if len(self.rates) == 0:
+            return
+    def formated_report(self):
+        (rates, positive_rates, negtive_rates) = (self.rates,self.positive_rates,self.negtive_rates)
+        print 'num', len(rates)," mean: ",np.min(rates)," std:",np.std(rates)
+        if len(positive_rates)  > 0:
+            print "+ ", len(positive_rates)," mean: ",np.min(positive_rates)," std:",np.std(positive_rates)
+        if len(negtive_rates) > 0:
+            print "-", len(negtive_rates), " mean: ", np.min(negtive_rates), " std:", np.std(negtive_rates)
 
+    def detail_report(self):
+        if len(self.rates) == 0:
+            return
+        (rates, positive_rates, negtive_rates) = (self.rates,self.positive_rates,self.negtive_rates)
         print "trade num :",len(rates)
         print "rate mean: " ,np.mean(rates)
         print "rate std :" , np.std(rates)
@@ -101,7 +122,6 @@ class section_analyzer:
             print "-min rate:", np.min(negtive_rates)
             print "rates:" ,rates
         #for each in self.diff_rate: print each
-
     #def save(self,name ):
     #    pickle.dump(self, open(name + "_section_ana.pickle", "wb"))
     def save(self):
@@ -155,6 +175,7 @@ class section_analyzer:
         print len(self.profilio)
         if len(self.price_diff) == 0:
             self.analyze()
+        self.formated_report()
         '''
         print ("i , date, type,profilio,profit,position,price,share, diff_price")
         for i in range(len(self.profilio)):
@@ -170,3 +191,32 @@ class section_analyzer:
         '''
 
         pass
+
+
+    def get_info(self):
+        if len(self.rates) == 0:
+            self.analyze()
+        (rates, positive_rates, negtive_rates) = (self.rates, self.positive_rates, self.negtive_rates)
+        inst={}
+        if len(rates) >0:
+            inst['trade_num']  =  len(rates)
+            inst['trade_mean'] = np.min(rates)
+            inst['trade_std'] = np.std(rates)
+        else:
+            inst['trade_num '] =inst['trade_mean']  = inst['trade_std'] = 0
+
+        if len(positive_rates) > 0:
+            inst['+trade_num']  =  len(positive_rates)
+            inst['+trade_mean'] = np.min(positive_rates)
+            inst['+trade_std'] = np.std(positive_rates)
+        else:
+            inst['+trade_num'] =inst['+trade_mean']  = inst['+trade_std'] = 0
+
+        if len(negtive_rates) > 0:
+            inst['-trade_num']  =  len(negtive_rates)
+            inst['-trade_mean'] = np.min(negtive_rates)
+            inst['-trade_std'] = np.std(negtive_rates)
+        else:
+            inst['-trade_num'] = inst['-trade_mean'] = inst['-trade_std'] = 0
+
+        return inst

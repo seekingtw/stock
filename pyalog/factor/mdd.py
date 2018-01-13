@@ -87,8 +87,14 @@ class mdd:
         return mdd_inst
 
     def view(self):
+        '''
         print 'max draw down:', self.get_max_drawdown()
         print 'drawdown rate:', self.mdd_rates
         print 'drawdown:', self.mdd_diffs
+        :return:
+        '''
 
+        print 'max draw down:', self.get_max_drawdown()
+    def get_info(self):
+        return {'max_draw_down': self.get_max_drawdown()}
     pass

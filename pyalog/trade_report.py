@@ -23,6 +23,31 @@ class trade_report:
     def add(self,name,val):
         self.infos[name] = val
 
+    def get_info(self):
+        info_inst={}
+        for each in self.infos:
+            if each == 'max drawdown':
+                inst = mdd.load(self.infos['max drawdown'])
+                if inst != None:
+                    info_inst[each] = inst.get_info()
+            elif each == 'trade':
+                inst = section_analyzer.load(self.infos['trade'])
+                info_inst[each] = inst.get_info()
+            elif each == 'trend':
+                continue
+                inst = self.infos['trend']
+                for i,each in enumerate(inst['datas']):
+                    datas =dated_data(each['dates'],each['datas'])
+                    datas.view(inst['names'][i],i+1==len(inst['names']))
+                    #self.plot_each(datas,inst['datas'][-1])
+                    #print each
+                #for each in inst['names']:
+                #    print each
+                datas =dated_data(inst['vol']['dates'],inst['vol']['datas'])
+                datas.view('vol', True)
+
+
+        return info_inst
     def view(self):
         for each in self.infos:
             if each == 'max drawdown':

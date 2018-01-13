@@ -64,8 +64,9 @@ class kd_signal(baseSignal,object):
     def long_signal(self):
         if cross.cross_above(self.kd.getKD_k(), self.kd.getKD_d()) :#and self.__trend.trend_current_ratio() >=0:
             #if self.trend_long(self.fast_ma) and self.trend_long(self.slow_ma):
-            if self.kd.getKD_d()[-1] > 30 :#and self.trend_long(self.slow_ma):
-                return True
+            '''adjust'''
+            #if self.kd.getKD_d()[-1] > 30 :#and self.trend_long(self.slow_ma):
+            return True
         return False
         pass
     def short_signal(self):
@@ -73,8 +74,9 @@ class kd_signal(baseSignal,object):
                 return True
         #if self.trend_short(self.slow_ma):
          #   return True
-        if self.kd.getKD_d()[-1] < 30  :
-            return True
+        ''' adjust'''
+        #if self.kd.getKD_d()[-1] < 30  :
+        #    return True
         #if self.trend_short(self.fast_ma)  :
         #    return True
         return False
@@ -118,13 +120,23 @@ class kd_signal(baseSignal,object):
         inst['datas'] = []
         datas = inst['datas']
         names.append('k')
-        up = self.kd.getKD_k()
-        up_dated_data = dated_data(up.getDateTimes(), up.getValues())
-        datas.append(up_dated_data.save())
-        names.append('d')
-        mid = self.kd.getKD_d()
-        mid_dated_data = dated_data(mid.getDateTimes(), mid.getValues())
-        datas.append(mid_dated_data.save())
-        inst['vol'] = dated_data(self.vol.getDateTimes(),self.vol.getValues()).save()
 
+        data_pd= pd.DataFrame()
+        data_pd['k']= self.kd.getKD_k().getValues()
+        data_pd.index= self.kd.getKD_k().getDateTimes()
+        data_pd['d']= self.kd.getKD_d().getValues()
+        inst['kd']= data_pd
+
+
+        data_pd= pd.DataFrame()
+        data_pd['vol']= self.vol.getValues()
+        data_pd.index= self.vol.getDateTimes()
+        inst['vol'] = data_pd
+        data_pd= pd.DataFrame()
+        data_pd['prices']= self.prices.getValues()
+        data_pd.index= self.prices.getDateTimes()
+        inst['prices'] = data_pd
         return inst
+    '''
+    note : very fast response
+    '''

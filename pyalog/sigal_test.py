@@ -72,25 +72,21 @@ class StrategyManager(strategy.BacktestingStrategy):
         for strategy in self.strategys:
             #handle signal
             # judge signal
-
-            if self.__position is None:
-
-                #if strategy.long(bars):
-                if strategy.long_signal():
-                    shares = int(1000 / bars[self.__instrument].getPrice())
-                    #shares = int(self.getBroker().getEquity() / bars[self.__instrument].getPrice())
-                    self.__position = self.enterLong(self.__instrument, shares, True)
-                    self.section_analyzer.item(bars.getDateTime(), "long", self.getBroker().getEquity(),
-                                               self.walkaround_share(shares), price, shares)
-                    pass
+             #if strategy.long(bars):
+            if strategy.long_signal():
+                shares = int(1000 / bars[self.__instrument].getPrice())
+                #shares = int(self.getBroker().getEquity() / bars[self.__instrument].getPrice())
+                #self.__position = self.enterLong(self.__instrument, shares, True)
+                self.section_analyzer.item(bars.getDateTime(), "long", self.getBroker().getEquity(),
+                                                       0, price, shares)
+                pass
             #elif not self.__position.exitActive() and strategy.short(bars):
-            elif not self.__position.exitActive() and strategy.short_signal() :
-                self.__position.exitMarket()
+            if strategy.short_signal() :
                 self.section_analyzer.item(bars.getDateTime(), "long_exit", self.getBroker().getEquity(), 0, price, 0)
         pass
 
         ''' for analyze, notice that currently position is position'''
-        self.mdd_obj.update_by_position(self.getBroker().getEquity() ,self.__position)
+        #self.mdd_obj.update_by_position(self.getBroker().getEquity() ,self.__position)
 
     def get_mdds(self):
         return self.mdd_obj.get_drawdowns()
@@ -163,7 +159,7 @@ def main(plot):
     instrument = '1102'
     #instrument='1102'
     #instrument='1301'
-    #instrument='1303'
+    instrument='1303'
     output_prefix="report-"
     #output_postfix = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
     output_postfix = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M-")
@@ -177,8 +173,12 @@ def main(plot):
     feed = googlefeed.Feed()
     feed.addBarsFromCSV(instrument, csvfile)
     signal_name = 'bband'
-    #signal_parameter= {'period':20,'std':2}
-    signal_parameter = {'period': 5, 'std': 2}
+    signal_parameter= {'period':20,'std':2}
+    signal_name = 'rsi'
+    signal_parameter= {'period':5}
+    signal_name = 'kd'
+    signal_parameter = {'fast_period': 10, 'slow_period': 3}
+    #signal_parameter = {'period': 5, 'std': 2}
     #signal_name = 'kd'
     #singal_parameter= {'slow_period':20,'fast_period':5}
     #feed.addBarsFromCSV(instrument,"2030.csv")
@@ -191,67 +191,17 @@ def main(plot):
     signal= strategy_dict[signal_name]
     #feed.setBarFilter(DateRangeFilter(       datetime.strptime("2015-11-1","%Y-%m-%d"),         datetime.strptime("2016-2-1","%Y-%m-%d")))
     #execfile('bband_strategy.py',checknamespace)
-
-    for i in range(3,60+1):
-        csvfile = "tw50_test/" + instrument + '.csv'
-        feed = googlefeed.Feed()
-        feed.addBarsFromCSV(instrument, csvfile)
-        signal_parameter['period'] = i
-        output_prefix= "p"+str(i)+"-"
-        run(feed, instrument, signal, signal_parameter, signal_name, output_prefix, output_postfix)
+    i=5
+    #for i in range(3,60+1):
+    csvfile = "tw50_test/" + instrument + '.csv'
+    feed = googlefeed.Feed()
+    feed.addBarsFromCSV(instrument, csvfile)
+    signal_parameter['period'] = i
+    output_prefix= "result/"+signal_name+"/sp"+str(i)+"-"
+    run(feed, instrument, signal, signal_parameter, signal_name, output_prefix, output_postfix)
     '''
     run(feed, instrument,signal,signal_parameter,signal_name,output_prefix,output_postfix)
     '''
-    '''
-    section_ana = section_analyzer()
-    strat = StrategyManager(feed, instrument,section_ana)
-    strat.attach_strategy(signal(strat,feed,instrument,**signal_parameter))
-    output_postfix = signal_name
-    strat.crate_report(output_prefix,output_postfix)
-
-    sharpeRatioAnalyzer = sharpe.SharpeRatio()
-    strat.attachAnalyzer(sharpeRatioAnalyzer)
-    maxdrawdown = drawdown.DrawDown()
-    strat.attachAnalyzer(maxdrawdown)
-
-    #retAnalyzer = returns.Returns()
-    #strat.attachAnalyzer(retAnalyzer)
-    #sharpeRatioAnalyzer = sharpe.SharpeRatio()
-    #strat.attachAnalyzer(sharpeRatioAnalyzer)
-    drawDownAnalyzer = drawdown.DrawDown()
-    strat.attachAnalyzer(drawDownAnalyzer)
-    tradesAnalyzer = trades.Trades()
-    strat.attachAnalyzer(tradesAnalyzer)
-    #drawDownAnalyzer.getMaxDrawDown2(strat, feed)
-    strat.run()
-    #print "Sharpe ratio: %.2f" % sharpeRatioAnalyzer.getSharpeRatio(0.05)
-    #drawDownAnalyzer = drawdown.DrawDown()
-    #strat.attachAnalyzer(drawDownAnalyzer)
-    #tradesAnalyzer = trades.Trades()
-    #strat.attachAnalyzer(tradesAnalyzer)
-    #section_ana.show()
-    print ("drawback check")
-    strat.check()
-    strat.save()
-    #list1=  strat.get_mdds()
-    #print list1
-    strat.plot()
-    '''
-
-
-
-    '''
-    execfile('user_strategy.py',checknamespace)
-    StrategyManager= checknamespace['StrategyManager']
-    section_ana = section_analyzer()
-    strat = StrategyManager(feed, instrument,section_ana)
-
-    plt = plotter.StrategyPlotter(strat, True, True, True)
-    strat.run()
-    #plt.plot()
-    section_ana.show()
-    '''
-    #for each in strat.get_mdds:
 
     pass
 

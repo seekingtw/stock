@@ -17,6 +17,7 @@ from trend import *
 from pyalgotrade.technical import bollinger
 from factor.dated_datas import *
 from signals import baseSignal
+import pandas as pd
 class bband_signal(baseSignal,object):
     def __init__(self,strategy,feed, instrument, **kwargs):
         '''
@@ -61,11 +62,28 @@ from signals import baseSignal
         high = self.__bbands.getUpperBand()
         if lower is None:
             return False
+        check_point= False
+
         if cross.cross_above(self.prices, self.__bbands.getLowerBand()) :
-            if self.trend_long(self.__bbands.getUpperBand()) :
+            #if self.trend_long(self.__bbands.getUpperBand()) :
             #if self.trend_long(ma):
-                return True
-        return False
+            check_point = True
+            '''
+         ### remove failling edge
+        if len(low) >5  and low[-5]!= None and check_point == True:
+            check_point = False
+            #print "bband long debug:",self.prices[-1],(low[-1] - low[-5])/low[-5]*100 , low[-5],low[-1]
+            if (low[-1] - low[-5])/low[-5] >= -0.03:
+                check_point = True
+                pass
+
+            '''
+        if check_point == True:
+            check_point = False
+            if self.trend_long(self.__bbands.getUpperBand()) :
+                check_point = True
+
+        return check_point
     def trend_short(self,ma):
         if  ma[-5] is  None:
             return  False
@@ -99,6 +117,7 @@ from signals import baseSignal
         high=self.__bbands.getUpperBand()
         if lower is None:
             return False
+        check_condition = False
         if cross.cross_above(self.prices, self.__bbands.getLowerBand()) :#and self.__trend.trend_current_ratio() >=0:
         #if  cross.cross_above(self.__prices, self.__bbands.getLowerBand()) and self.__trend.trend_current() != 'down':
         #if  cross.cross_above(self.__prices, self.__bbands.getLowerBand()) and trend_ratio(ma) >-1:
@@ -116,8 +135,15 @@ from signals import baseSignal
             #self.list_info("low", low, 5)
             #self.list_info("high", high, 5)
             #self.list_info("price", self.prices, 5)
-            return True
-        return False
+            check_condition = True
+        if (check_condition == False):
+                return False
+
+        ### remove failling edge
+        print "bband long debug:",(lower[-1] - lower[-5])/lower[-5] , lower[-5],lower[-1]
+        if (lower[-1] - lower[-5])/lower[-5] >= -0.02:
+            check_condition = True
+        return check_condition
         pass
     def short(self,bars):
         lower = self.__bbands.getLowerBand()[-1]
@@ -148,12 +174,30 @@ from signals import baseSignal
 
     def save(self):
         inst = {}
-        inst['names'] = []
-        names = inst['names']
-        inst['datas'] = []
-        datas= inst['datas']
-        names.append('upper')
+        '''
+         inst['names'] = []
+         names = inst['names']
+         inst['datas'] = []
+         datas= inst['datas']
+
+        '''
+
+        data_pd = pd.DataFrame()
         up = self.getBollingerBands().getUpperBand()
+        mid = self.getBollingerBands().getMiddleBand()
+        low = self.getBollingerBands().getLowerBand()
+
+        data_pd['up'] = up.getValues()
+        #names.append('up')
+        data_pd['low'] = low.getValues()
+        #names.append('up')
+        data_pd['mid'] = mid.getValues()
+        #names.append('mid')
+        data_pd['price'] = self.prices.getValues()
+        #names.append('price')
+        data_pd.index = up.getDateTimes()
+
+        '''
         up_dated_data= dated_data(up.getDateTimes(),up.getValues())
         datas.append(up_dated_data.save())
         names.append('middle')
@@ -167,10 +211,25 @@ from signals import baseSignal
         price_dated_data= dated_data(self.prices.getDateTimes(),self.prices.getValues())
         datas.append(price_dated_data.save())
         names.append('price')
-        inst['vol'] = dated_data(self.vol.getDateTimes(),self.vol.getValues()).save()
+        '''
+        inst['bband']=data_pd
+
+        #inst['vol'] = dated_data(self.vol.getDateTimes(),self.vol.getValues()).save_dataframe()
+        inst['vol']= pd.DataFrame()
+        inst['vol']= self.vol.getValues()
+        inst['vol'].index= self.vol.getDateTimes()
         return inst
+        #return data_pd
 
     def plot_show(self):
         self.plt.plot()
         pass
 
+'''
+
+note:
+for 1102, it is bad.
+long signal : occur when failing :, signal may start before price rise, long term recover signal
+short signal:acceptable ,short team long.
+
+'''
