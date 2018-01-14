@@ -123,4 +123,7 @@ def check_kd(inputfile='sp20-1303bband.pickle'):
     plt.grid(True)
     plt.show()
 if __name__ == "__main__":
-    check_rsi('result/kd/sp5-1303kd.pickle')
+    #check_rsi('result/kd/sp5-1303kd.pickle')
+    #check_rsi('result/macd/sp5-1303macd.pickle')
+    #check_rsi('result/dma/sp5-1303dma.pickle')
+    check_rsi('result/trend/sp5-1303trend.pickle')

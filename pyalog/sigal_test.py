@@ -182,7 +182,13 @@ def main(plot):
     #signal_name = 'kd'
     #singal_parameter= {'slow_period':20,'fast_period':5}
     #feed.addBarsFromCSV(instrument,"2030.csv")
-    strategy_dict={'DMA':DMA_signal,
+    signal_name = 'macd'
+    signal_parameter = {'fast_period': 12, 'slow_period': 26,'signal_period':9}
+    signal_name = 'dma'
+    signal_parameter = {'fast_period': 5, 'slow_period': 20}
+    signal_name = 'trend'
+    signal_parameter = {'period': 5}
+    strategy_dict={'dma':DMA_signal,
                    'macd':macd_signal,
                    'trend':trend_signal,
                    'kd':kd_signal,

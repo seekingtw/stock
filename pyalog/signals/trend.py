@@ -93,7 +93,7 @@ class TrendRatio(object):
 
 from signals import baseSignal
 class trend_signal(baseSignal,object):
-    def __init__(self,strategy,feed, instrument,period,**kwargs):
+    def __init__(self,strategy,feed, instrument,**kwargs):
         '''
 
         :param strategy:
@@ -109,9 +109,9 @@ class trend_signal(baseSignal,object):
         #self.__prices = feed[instrument].getPriceDataSeries()
         #super(trend_signal, self).__init__(strategy, feed, instrument)
         #print type(trend_signal)
-        self.set_member('period',kwargs)
+        self.set_member('period',20,kwargs)
         super(trend_signal,self).__init__(strategy, feed, instrument)
-        self.trend = TrendRatio(self.prices, period)
+        self.trend = TrendRatio(self.prices, self.period)
         self.plot_init(True)
 
     def long(self,bars):
@@ -130,7 +130,6 @@ class trend_signal(baseSignal,object):
 
     def save(self):
         inst = {}
-        inst['trend'] = dated_data(self.trend.getDateTimes(), self.trend.getValues()).save('trend')
         '''
         inst['names'] = []
         names = inst['names']
@@ -142,7 +141,19 @@ class trend_signal(baseSignal,object):
         datas.append(trend_dated_data.save())
         '''
 
-        inst['vol'] = dated_data(self.vol.getDateTimes(),self.vol.getValues()).save('vol')
+        data_pd= pd.DataFrame()
+        data_pd['trend']= self.trend.getTrend().getValues()
+        data_pd.index= self.trend.getTrend().getDateTimes()
+        inst['trend']= data_pd
+
+        data_pd= pd.DataFrame()
+        data_pd['vol']= self.vol.getValues()
+        data_pd.index= self.vol.getDateTimes()
+        inst['vol'] = data_pd
+        data_pd= pd.DataFrame()
+        data_pd['prices']= self.prices.getValues()
+        data_pd.index= self.prices.getDateTimes()
+        inst['prices'] = data_pd
         return inst
 
     def plot_init(self, plot):

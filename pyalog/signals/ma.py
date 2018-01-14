@@ -28,16 +28,14 @@ class DMA_signal(baseSignal,object):
         self.set_member('fast_period',5,kwargs)
         self.set_member('slow_period', 20,kwargs)
         super(DMA_signal, self).__init__(strategy, feed, instrument)
-        self.fast_ma= ma.SMA(feed[instrument].getCloseDataSeries(), fast_period)
-        self.fast_period = fast_period
+        self.fast_ma= ma.SMA(feed[instrument].getCloseDataSeries(), self.fast_period)
 
-        self.slow_ma = ma.SMA(feed[instrument].getCloseDataSeries(), slow_period)
-        self.slow_period = slow_period
+        self.slow_ma = ma.SMA(feed[instrument].getCloseDataSeries(), self.slow_period)
         #self.__strategy= strategy
         #self.__instrument = instrument
         #self.__prices = feed[instrument].getPriceDataSeries()
-        self.fast__trend = TrendRatio(self.prices, fast_period)
-        self.slow__trend = TrendRatio(self.prices, slow_period)
+        self.fast__trend = TrendRatio(self.prices,self. fast_period)
+        self.slow__trend = TrendRatio(self.prices, self.slow_period)
 
         self.plot_init(True)
 
@@ -76,22 +74,22 @@ class DMA_signal(baseSignal,object):
         pass
     def save(self):
         inst = {}
-        inst['names'] = []
-        names = inst['names']
-        inst['datas'] = []
-        datas = inst['datas']
-        names.append('fast_ma')
-        fast_ma = self.fast_ma
-        fast_ma_dated_data = dated_data(fast_ma.getDateTimes(), fast_ma.getValues())
-        datas.append(fast_ma_dated_data.save())
-        names.append('slow_ma')
-        slow_ma = self.slow_ma
-        slow_ma_dated_data = dated_data(slow_ma.getDateTimes(), slow_ma.getValues())
-        datas.append(slow_ma_dated_data.save())
-        price_dated_data= dated_data(self.prices.getDateTimes(),self.prices.getValues())
-        datas.append(price_dated_data.save())
-        names.append('price')
-        inst['vol'] = dated_data(self.vol.getDateTimes(),self.vol.getValues()).save()
+
+        data_pd= pd.DataFrame()
+        data_pd['fast_ma']= self.fast_ma.getValues()
+        data_pd.index= self.fast_ma.getDateTimes()
+        data_pd['slow_ma']= self.slow_ma.getValues()
+        data_pd['prices']= self.prices.getValues()
+        inst['dual_ma']= data_pd
+
+        data_pd= pd.DataFrame()
+        data_pd['vol']= self.vol.getValues()
+        data_pd.index= self.vol.getDateTimes()
+        inst['vol'] = data_pd
+        data_pd= pd.DataFrame()
+        data_pd['prices']= self.prices.getValues()
+        data_pd.index= self.prices.getDateTimes()
+        inst['prices'] = data_pd
 
         return inst
 

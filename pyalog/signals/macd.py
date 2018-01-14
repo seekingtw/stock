@@ -9,13 +9,14 @@ from pyalgotrade import plotter
 from pyalgotrade.technical import bollinger
 from pyalgotrade.technical import cross
 from pyalgotrade.technical import ma
+from pyalgotrade.technical import macd
 from trend import *
 from factor.dated_datas import *
 from signals import baseSignal
 
 
 class macd_signal(baseSignal,object):
-    def __init__(self,strategy,feed, instrument,signal_period,**kwargs):
+    def __init__(self,strategy,feed, instrument,**kwargs):
         '''
 
         :param strategy:
@@ -30,16 +31,16 @@ class macd_signal(baseSignal,object):
         slow_period
         '''
         super(macd_signal, self).__init__(strategy, feed, instrument)
-        self.set_member('fast_period',5,kwargs)
-        self.set_member('slow_period', 20,kwargs)
-        self.set_member('short_signal', 3, kwargs)
-        self.macd= macd.MACD(feed[instrument].getCloseDataSeries(), fast_period,slow_period,signal_period)
+        self.set_member('fast_period',12,kwargs)
+        self.set_member('slow_period', 26,kwargs)
+        self.set_member('signal_period', 9, kwargs)
+        self.macd= macd.MACD(feed[instrument].getCloseDataSeries(), self.fast_period,self.slow_period,self.signal_period)
         #self.__strategy= strategy
         #self.__instrument = instrument
         #self.__prices = feed[instrument].getPriceDataSeries()
         self.vol=feed[instrument].getVolumeDataSeries()
-        self.fast__trend = TrendRatio(self.prices, fast_period)
-        self.slow__trend = TrendRatio(self.prices, slow_period)
+        self.fast__trend = TrendRatio(self.prices, self.fast_period)
+        self.slow__trend = TrendRatio(self.prices, self.slow_period)
 
         self.plot_init(True)
 
@@ -70,7 +71,8 @@ class macd_signal(baseSignal,object):
         pass
     def short_signal(self):
         #if cross.cross_below(self.fast_ma, self.slow_ma) :#and self.__trend.trend_current_ratio() >=0:
-
+        if len(self.macd.getHistogram()) <2 :
+            return False
         if self.macd.getHistogram()[-1] < 0 and self.macd.getHistogram()[-2] >= 0:#  and self.macd.getSignal()[-1] < 0:
         #if (self.macd.getHistogram()[-1] < 0 and self.macd.getHistogram()[-2] >= 0 )or self.slow__trend.trend_current_ratio() < 0:
 
@@ -100,18 +102,21 @@ class macd_signal(baseSignal,object):
 
     def save(self):
         inst = {}
-        inst['names'] = []
-        names = inst['names']
-        inst['datas'] = []
-        datas = inst['datas']
-        names.append('singal')
-        signal = self.macd.getSignal()
-        signal_dated_data = dated_data(signal.getDateTimes(), signal.getValues())
-        datas.append(signal_dated_data.save())
-        names.append('hist')
-        hist = self.macd.getHistogram()
-        hist_dated_data = dated_data(hist.getDateTimes(), hist.getValues())
-        datas.append(hist_dated_data.save())
-        inst['vol'] = dated_data(self.vol.getDateTimes(),self.vol.getValues()).save()
+
+        data_pd= pd.DataFrame()
+        data_pd['hist']= self.macd.getHistogram().getValues()
+        data_pd.index= self.macd.getHistogram().getDateTimes()
+        data_pd['signal']= self.macd.getSignal().getValues()
+        inst['macd']= data_pd
+
+        data_pd= pd.DataFrame()
+        data_pd['vol']= self.vol.getValues()
+        data_pd.index= self.vol.getDateTimes()
+        inst['vol'] = data_pd
+        data_pd= pd.DataFrame()
+        data_pd['prices']= self.prices.getValues()
+        data_pd.index= self.prices.getDateTimes()
+        inst['prices']=data_pd
+
 
         return inst

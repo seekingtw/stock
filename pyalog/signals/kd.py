@@ -115,11 +115,6 @@ class kd_signal(baseSignal,object):
 
     def save(self):
         inst = {}
-        inst['names'] = []
-        names = inst['names']
-        inst['datas'] = []
-        datas = inst['datas']
-        names.append('k')
 
         data_pd= pd.DataFrame()
         data_pd['k']= self.kd.getKD_k().getValues()
