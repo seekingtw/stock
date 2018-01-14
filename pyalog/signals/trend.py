@@ -128,6 +128,19 @@ class trend_signal(baseSignal,object):
         return False
         pass
 
+    def long_signal(self):
+        if self.trend.trend_current_ratio() >0.0:
+            return True
+        return False
+        pass
+
+    def short_signal(self):
+
+        if self.trend.trend_current_ratio() < 0:
+
+            return True
+        return False
+        pass
     def save(self):
         inst = {}
         '''
