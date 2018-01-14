@@ -20,6 +20,8 @@ class StrategyManager(strategy.BacktestingStrategy):
         self.section_analyzer = section_analyzer
 
         self.mdd_obj = mdd()
+        # for example usage of sd
+        #self.__asset =dataseries.SequenceDataSeries(365*10)
 
         pass
     def crate_report (self,prefix='',postfix=''):
@@ -91,6 +93,7 @@ class StrategyManager(strategy.BacktestingStrategy):
 
         ''' for analyze, notice that currently position is position'''
         self.mdd_obj.update_by_position(self.getBroker().getEquity() ,self.__position)
+        #        self.__asset.appendWithDateTime(bars.getDateTime(),self.getBroker().getEquity()+100000)
 
     def get_mdds(self):
         return self.mdd_obj.get_drawdowns()

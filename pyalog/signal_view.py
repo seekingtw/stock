@@ -122,6 +122,24 @@ def check_kd(inputfile='sp20-1303bband.pickle'):
     p.scatter(short_signal['date'],short_signal['data'],color='g')
     plt.grid(True)
     plt.show()
+
+
+'''
+
+import matplotlib.pyplot as pyplot
+def result_plot(series):
+    values = []
+    #for dateTime in series.getDateTimes():
+    #    values.append(series.getValue(dateTime))
+    fig, axes = pyplot.subplots(nrows=1, sharex=True, squeeze=False)
+    pyplot.plot(series.getDateTimes(), series.getValues())
+    #fig.autofmt_xdate()
+    #plt.legend(subPlot.getAllSeries().keys(), shadow=True, loc="best")
+# Don't scale the Y axis
+    #plt.yaxis.set_major_formatter(ticker.ScalarFormatter(useOffset=False))
+    pyplot.show()
+    pass
+'''
 if __name__ == "__main__":
     #check_rsi('result/kd/sp5-1303kd.pickle')
     #check_rsi('result/macd/sp5-1303macd.pickle')

@@ -185,3 +185,9 @@ class trend_signal(baseSignal,object):
     def plot_show(self):
         self.plt.plot()
         pass
+'''
+note:
+can be good for brief trend.
+but it fail for the time from long to short.
+ true and false give to little information. use value to give more info.
+'''
