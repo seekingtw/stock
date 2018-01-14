@@ -1,4 +1,5 @@
 from pyalgotrade import plotter
+import pandas as pd
 class baseSignal:
     def __init__(self,strategy,feed, instrument):
         self.strategy = strategy
@@ -31,6 +32,19 @@ class baseSignal:
             self.__dict__[member] = dict_args[paramter]
         else:
             self.__dict__[member]=default
+
+    def save(self):
+        inst = {}
+
+        data_pd = pd.DataFrame()
+        data_pd['vol'] = self.vol.getValues()
+        data_pd.index = self.vol.getDateTimes()
+        inst['vol'] = data_pd
+        data_pd = pd.DataFrame()
+        data_pd['prices'] = self.prices.getValues()
+        data_pd.index = self.prices.getDateTimes()
+        inst['prices'] = data_pd
+        return inst
 
 def hello():
     print "hello"
