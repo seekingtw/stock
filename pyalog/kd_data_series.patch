@@ -1,0 +1,64 @@
+diff --git a/pyalgotrade/dataseries/__init__.py b/pyalgotrade/dataseries/__init__.py
+index 9791935..d0a22a4 100644
+--- a/pyalgotrade/dataseries/__init__.py
++++ b/pyalgotrade/dataseries/__init__.py
+@@ -23,7 +23,7 @@ import abc
+ from pyalgotrade import observer
+ from pyalgotrade.utils import collections
+ 
+-DEFAULT_MAX_LEN = 1024
++DEFAULT_MAX_LEN = 365*10
+ 
+ 
+ def get_checked_max_len(maxLen):
+@@ -143,3 +143,7 @@ class SequenceDataSeries(DataSeries):
+ 
+     def getDateTimes(self):
+         return self.__dateTimes.data()
++
++
++    def getValues(self):
++        return self.__values.data()
+diff --git a/pyalgotrade/stratanalyzer/drawdown.py b/pyalgotrade/stratanalyzer/drawdown.py
+index 07626e1..9a6c94c 100644
+--- a/pyalgotrade/stratanalyzer/drawdown.py
++++ b/pyalgotrade/stratanalyzer/drawdown.py
+@@ -75,7 +75,13 @@ class DrawDown(stratanalyzer.StrategyAnalyzer):
+         #         ret += strat.getBroker().getBarHigh(_bar) * shares
+         # return ret
+ 
+-    def beforeOnBars(self, strat, bars):
++    def getMaxDrawDown(self, strat, bars):
++        equity = self.calculateEquity(strat)
++        self.__currDrawDown.update(bars.getDateTime(), equity, equity)
++        self.__longestDDDuration = max(self.__longestDDDuration, self.__currDrawDown.getDuration())
++        self.__maxDD = min(self.__maxDD, self.__currDrawDown.getMaxDrawDown())
++
++    def getMaxDrawDown2(self, strat, bars):
+         equity = self.calculateEquity(strat)
+         self.__currDrawDown.update(bars.getDateTime(), equity, equity)
+         self.__longestDDDuration = max(self.__longestDDDuration, self.__currDrawDown.getDuration())
+diff --git a/pyalgotrade/technical/stoch.py b/pyalgotrade/technical/stoch.py
+index 7b50d01..98aa7d2 100644
+--- a/pyalgotrade/technical/stoch.py
++++ b/pyalgotrade/technical/stoch.py
+@@ -80,6 +80,18 @@ class StochasticOscillator(technical.EventBasedFilter):
+         super(StochasticOscillator, self).__init__(barDataSeries, SOEventWindow(period, useAdjustedValues), maxLen)
+         self.__d = ma.SMA(self, dSMAPeriod, maxLen)
+ 
++        self.k = self.__d
++        self.d = ma.SMA(self.k, dSMAPeriod, maxLen)
+     def getD(self):
+         """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the %D values."""
+         return self.__d
++
++
++    def getKD_k(self):
++        """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the %D values."""
++        return self.k
++
++
++    def getKD_d(self):
++        """Returns a :class:`pyalgotrade.dataseries.DataSeries` with the %D values."""
++        return self.d
+\ No newline at end of file
