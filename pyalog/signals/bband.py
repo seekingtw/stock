@@ -63,7 +63,9 @@ from signals import baseSignal
         if lower is None:
             return False
         check_point= False
-
+        # example of acces datatimes
+        #if self.prices.getDateTimes()[-1] :
+        #    print self.prices[-1]
         if cross.cross_above(self.prices, self.__bbands.getLowerBand()) :
             #if self.trend_long(self.__bbands.getUpperBand()) :
             #if self.trend_long(ma):
@@ -85,6 +87,7 @@ from signals import baseSignal
 
         return check_point
     def trend_short(self,ma):
+
         if  ma[-5] is  None:
             return  False
         if (ma[-1] -ma[-5])/ma[-5] < -0.02 :
@@ -148,6 +151,7 @@ from signals import baseSignal
     def short(self,bars):
         lower = self.__bbands.getLowerBand()[-1]
         upper = self.__bbands.getUpperBand()[-1]
+
         prices = self.prices
         if upper is None:
             return False
@@ -215,9 +219,10 @@ from signals import baseSignal
         inst['bband']=data_pd
 
         #inst['vol'] = dated_data(self.vol.getDateTimes(),self.vol.getValues()).save_dataframe()
-        inst['vol']= pd.DataFrame()
-        inst['vol']= self.vol.getValues()
-        inst['vol'].index= self.vol.getDateTimes()
+        data_pd= pd.DataFrame()
+        data_pd['vol']= self.vol.getValues()
+        data_pd.index= self.vol.getDateTimes()
+        inst['vol'] = data_pd
         return inst
         #return data_pd
 

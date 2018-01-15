@@ -133,5 +133,8 @@ class kd_signal(baseSignal,object):
         inst['prices'] = data_pd
         return inst
     '''
-    note : very fast response
+    note : very fast response:
+    fit for large range stock.
+    don't use it on smooth failling.
+
     '''

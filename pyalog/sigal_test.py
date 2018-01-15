@@ -172,27 +172,31 @@ def main(plot):
     csvfile="tw50_test/"+instrument+'.csv'
     feed = googlefeed.Feed()
     feed.addBarsFromCSV(instrument, csvfile)
-    signal_name = 'bband'
-    signal_parameter= {'period':20,'std':2}
-    signal_name = 'rsi'
-    signal_parameter= {'period':5}
+    #signal_name = 'bband'
+    #signal_parameter= {'period':20,'std':2}
+    #signal_name = 'rsi'
+    #signal_parameter= {'period':5}
     signal_name = 'kd'
     signal_parameter = {'fast_period': 10, 'slow_period': 3}
     #signal_parameter = {'period': 5, 'std': 2}
     #signal_name = 'kd'
     #singal_parameter= {'slow_period':20,'fast_period':5}
     #feed.addBarsFromCSV(instrument,"2030.csv")
-    signal_name = 'macd'
-    signal_parameter = {'fast_period': 12, 'slow_period': 26,'signal_period':9}
-    signal_name = 'dma'
-    signal_parameter = {'fast_period': 5, 'slow_period': 20}
-    signal_name = 'trend'
+    #signal_name = 'macd'
+    #signal_parameter = {'fast_period': 12, 'slow_period': 26,'signal_period':9}
+    #signal_name = 'dma'
+    #signal_parameter = {'fast_period': 5, 'slow_period': 20}
+    #signal_name = 'trend'
+    #signal_parameter = {'period': 5}
+
+    signal_name = 'roc'
     signal_parameter = {'period': 5}
     strategy_dict={'dma':DMA_signal,
                    'macd':macd_signal,
                    'trend':trend_signal,
                    'kd':kd_signal,
                    'bband':bband_signal,
+                   'roc':monent_signal,
                    'rsi':rsi_signal}
     signal= strategy_dict[signal_name]
     #feed.setBarFilter(DateRangeFilter(       datetime.strptime("2015-11-1","%Y-%m-%d"),         datetime.strptime("2016-2-1","%Y-%m-%d")))

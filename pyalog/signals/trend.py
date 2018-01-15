@@ -143,16 +143,6 @@ class trend_signal(baseSignal,object):
         pass
     def save(self):
         inst = {}
-        '''
-        inst['names'] = []
-        names = inst['names']
-        inst['datas'] = []
-        datas = inst['datas']
-        names.append('moment')
-        trend = self.trend
-        trend_dated_data = dated_data(trend.getDateTimes(), trend.getValues())
-        datas.append(trend_dated_data.save())
-        '''
 
         data_pd= pd.DataFrame()
         data_pd['trend']= self.trend.getTrend().getValues()
@@ -177,7 +167,7 @@ class trend_signal(baseSignal,object):
             # self.plt.getInstrumentSubplot(self.__instrument).addDataSeries("slow_ma",
             #                                                               self.slow_ma)
 
-            self.plt.getOrCreateSubplot("macd").addDataSeries("trend", self.trend.getTrend())
+            self.plt.getOrCreateSubplot("trend").addDataSeries("trend", self.trend.getTrend())
 
         pass
 
@@ -191,3 +181,76 @@ can be good for brief trend.
 but it fail for the time from long to short.
  true and false give to little information. use value to give more info.
 '''
+from pyalgotrade.technical.roc import RateOfChange
+class monent_signal(baseSignal,object):
+    def __init__(self,strategy,feed, instrument,**kwargs):
+       '''
+
+       :param strategy:
+       :param feed:
+       :param instrument:
+       :param kwargs:
+                period
+       '''
+       self.set_member('period', 20, kwargs)
+       super(monent_signal, self).__init__(strategy, feed, instrument)
+       self.roc = RateOfChange(self.prices, self.period)
+       self.plot_init(True)
+
+    def long(self,bars):
+        if self.roc[-1] >0.0:
+            return True
+        return False
+        pass
+
+    def short(self,bars):
+
+        if self.roc[-1] < 0.0:
+
+            return True
+        return False
+        pass
+
+    def long_signal(self):
+        if self.roc[-1] >0.0:
+            return True
+        return False
+        pass
+
+    def short_signal(self):
+
+        if self.roc[-1] < 0.0:
+
+            return True
+        return False
+        pass
+    def save(self):
+       inst = {}
+
+       data_pd = pd.DataFrame()
+       data_pd['roc'] = self.roc.getValues()
+       data_pd.index = self.roc.getDateTimes()
+       inst['roc'] = data_pd
+
+       data_pd = pd.DataFrame()
+       data_pd['vol'] = self.vol.getValues()
+       data_pd.index = self.vol.getDateTimes()
+       inst['vol'] = data_pd
+       data_pd = pd.DataFrame()
+       data_pd['prices'] = self.prices.getValues()
+       data_pd.index = self.prices.getDateTimes()
+       inst['prices'] = data_pd
+       return inst
+
+
+    def plot_init(self, plot):
+        if plot:  # plot:
+            super(monent_signal, self).plot_init(plot)
+            # self.plt = plotter.StrategyPlotter(self.strategy, True, True, True)
+            # self.plt.getInstrumentSubplot(self.__instrument).addDataSeries("fast_ma", self.fast_ma)
+            # self.plt.getInstrumentSubplot(self.__instrument).addDataSeries("slow_ma",
+            #                                                               self.slow_ma)
+
+            self.plt.getOrCreateSubplot("roc").addDataSeries("roc", self.roc)
+
+        pass
