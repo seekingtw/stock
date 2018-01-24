@@ -12,6 +12,29 @@ def struct(dict_data,level =0):
             struct(dict_data[each],level+1)
         else:
             print "\t"*level+each," : ",type(dict_data[each])
+class Cursor(object):
+    def __init__(self, axes):
+        self.lys =[]
+        self.ax = axes[0]
+        self.lx = axes[0].axhline(color='k')  # the horiz line
+        for ax in axes:
+            self.lys.append(ax.axvline(color='k'))  # the vert line
+
+        # text location in axes coords
+        self.txt = axes[0].text(0.7, 0.9, '', transform=ax.transAxes)
+
+    def mouse_move(self, event):
+        if not event.inaxes:
+            return
+
+        x, y = event.xdata, event.ydata
+        # update the line positions
+        self.lx.set_ydata(y)
+        for each in self.lys:
+            each.set_xdata(x)
+
+        self.txt.set_text('x=%1.2f, y=%1.2f' % (x, y))
+        plt.draw()
 
 def check_signal(inputfile='sp20-1303bband.pickle'):
 #    inputfile='sp20-1102bband.pickle'
@@ -52,12 +75,25 @@ def check_rsi(inputfile='sp20-1303bband.pickle'):
     inst=pickle.load(open(inputfile))
     struct(inst)
 
+
     strategy_name= 'bband'
     for each in inst['trend']:
         if each != 'vol' and each != 'prices':
             strategy_name = each
     p = plt.subplot(2, 1, 2)
     inst['trend'][strategy_name].plot(ax=p)
+
+    datapd = inst['trend'][strategy_name]
+
+
+    #datapd=datapd.fillna(0)
+    datapd2=datapd.dropna()
+    #print datapd
+
+
+
+    print datapd2.describe()
+
 
 
     p.grid(True)
@@ -81,6 +117,13 @@ def check_rsi(inputfile='sp20-1303bband.pickle'):
     inst['trend']['prices'].plot(ax=p)
     p.scatter(long_signal['date'], long_signal['data'], color='r')
     p.scatter(short_signal['date'],short_signal['data'],color='g')
+
+
+    allaxes = gcf().get_axes()
+
+    cursor = Cursor(allaxes)
+    # cursor = SnaptoCursor(ax, t, s)
+    plt.connect('motion_notify_event', cursor.mouse_move)
     plt.grid(True)
     plt.show()
 
@@ -145,4 +188,5 @@ if __name__ == "__main__":
     #check_rsi('result/macd/sp5-1303macd.pickle')
     #check_rsi('result/dma/sp5-1303dma.pickle')
     #check_rsi('result/trend/sp5-1303trend.pickle')
+
     check_rsi('result/roc/sp5-1303roc.pickle')
