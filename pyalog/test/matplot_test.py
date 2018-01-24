@@ -16,16 +16,16 @@ similar effect.  See
 from __future__ import print_function
 import matplotlib.pyplot as plt
 import numpy as np
-
-
+import datetime
+import random
 class Cursor(object):
     def __init__(self, ax):
         self.ax = ax
         self.lx = ax.axhline(color='k')  # the horiz line
-        self.ly = ax.axvline(color='k')  # the vert line
+        #self.ly = ax.axvline(color='k')  # the vert line
 
         # text location in axes coords
-        self.txt = ax.text(0.7, 0.9, '', transform=ax.transAxes)
+        #self.txt = ax.text(0.7, 0.9, '', transform=ax.transAxes)
 
     def mouse_move(self, event):
         if not event.inaxes:
@@ -34,9 +34,10 @@ class Cursor(object):
         x, y = event.xdata, event.ydata
         # update the line positions
         self.lx.set_ydata(y)
-        self.ly.set_xdata(x)
+        #self.ly.set_xdata(x)
 
-        self.txt.set_text('x=%1.2f, y=%1.2f' % (x, y))
+        #self.txt.set_text('x=%1.2f, y=%1.2f' % (x, y))
+
         plt.draw()
 
 
@@ -73,14 +74,32 @@ class SnaptoCursor(object):
         print('x=%1.2f, y=%1.2f' % (x, y))
         plt.draw()
 
-t = np.arange(0.0, 1.0, 0.01)
-s = np.sin(2*2*np.pi*t)
+# make up some data
+x = [datetime.datetime.now() + datetime.timedelta(days=i) for i in range(12)]
+#y = [i + random.gauss(0, 1) for i, _ in enumerate(x)]
+y= [ i for i in range(12)]
+# plot
+#plt.scatter(x, y)
+# beautify the x-labels
+#plt.gcf().autofmt_xdate()
+
+#plt.show()
+
+#t = np.arange(0.0, 1.0, 0.01)
+#s = np.sin(2*2*np.pi*t)
+s= []
+t=[]
+for i in range(10): t.append(i)
+
+#for i in range(10): s.append(i)
+#for each in range(10): s.append(datetime.datetime(2018,1,each+1))
+s = [datetime.datetime.now() + datetime.timedelta(days=i) for i in range(10)]
 fig, ax = plt.subplots()
 
-#cursor = Cursor(ax)
-cursor = SnaptoCursor(ax, t, s)
+cursor = Cursor(ax)
+#cursor = SnaptoCursor(ax, t, s)
 plt.connect('motion_notify_event', cursor.mouse_move)
 
-ax.plot(t, s, 'o')
-plt.axis([0, 1, -1, 1])
+ax.scatter(s,t )
+#plt.axis([0, 1, -1, 1])
 plt.show()

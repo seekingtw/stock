@@ -191,6 +191,8 @@ def main(plot):
 
     signal_name = 'roc'
     signal_parameter = {'period': 5}
+    signal_name = 'atr'
+    signal_parameter = {'period': 5}
     strategy_dict={'dma':DMA_signal,
                    'macd':macd_signal,
                    'trend':trend_signal,
@@ -201,12 +203,12 @@ def main(plot):
     signal= strategy_dict[signal_name]
     #feed.setBarFilter(DateRangeFilter(       datetime.strptime("2015-11-1","%Y-%m-%d"),         datetime.strptime("2016-2-1","%Y-%m-%d")))
     #execfile('bband_strategy.py',checknamespace)
-    i=5
+    #i=5
     #for i in range(3,60+1):
     csvfile = "tw50_test/" + instrument + '.csv'
     feed = googlefeed.Feed()
     feed.addBarsFromCSV(instrument, csvfile)
-    signal_parameter['period'] = i
+    #signal_parameter['period'] = i
     output_prefix= "result/"+signal_name+"/sp"+str(i)+"-"
     run(feed, instrument, signal, signal_parameter, signal_name, output_prefix, output_postfix)
     '''

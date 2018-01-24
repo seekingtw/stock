@@ -69,6 +69,40 @@ class StrategyManager(strategy.BacktestingStrategy):
             each.plot_show()
     def walkaround_share(self, share):
         return self.__position.getShares() - share
+
+    def long_position_process(self,bars,strategy):
+        # if strategy.long(bars):
+        price = bars[self.__instrument].getPrice()
+        if strategy.long_signal():
+            shares = int(1000 / bars[self.__instrument].getPrice())
+            shares = int(self.getBroker().getEquity() * 0.9 / bars[self.__instrument].getPrice())
+            self.__position = self.enterLong(self.__instrument, shares, True)
+            self.section_analyzer.item(bars.getDateTime(), "long", self.getBroker().getEquity(),
+                                       self.walkaround_share(shares), price, shares)
+            pass
+        pass
+
+    def onBars_long_position_process_by_score(self,bars,strategy):
+        # if strategy.long(bars):
+        price = bars[self.__instrument].getPrice()
+        score = 0
+        for strategy in self.strategys:
+            s_score = strategy.long_score()
+            ## some signal must remap
+            # like kd > 80 is a sale signal.
+            # no numic mathod ?
+            # for kd > 80 for a period off time it should be long?
+            # hardcore?
+            # check by another signal to make sure?
+            s_weight = strategy.long_weight() # decide by other factor?
+            score+= s_score*s_weight
+
+            pass
+        if score > 100 :
+            return True;
+        else :
+            return False
+        pass
     def onBars(self, bars):
         price = bars[self.__instrument].getPrice()
         for strategy in self.strategys:
@@ -76,15 +110,8 @@ class StrategyManager(strategy.BacktestingStrategy):
             # judge signal
 
             if self.__position is None:
+                self.long_position_process(bars,strategy)
 
-                #if strategy.long(bars):
-                if strategy.long_signal():
-                    shares = int(1000 / bars[self.__instrument].getPrice())
-                    shares = int(self.getBroker().getEquity()*0.9 / bars[self.__instrument].getPrice())
-                    self.__position = self.enterLong(self.__instrument, shares, True)
-                    self.section_analyzer.item(bars.getDateTime(), "long", self.getBroker().getEquity(),
-                                               self.walkaround_share(shares), price, shares)
-                    pass
             #elif not self.__position.exitActive() and strategy.short(bars):
             elif not self.__position.exitActive() and strategy.short_signal() :
                 self.__position.exitMarket()
@@ -117,6 +144,8 @@ from  signals.bband import *
 from  signals.kd import *
 from  signals.ma import *
 from signals.rsi import rsi_signal
+from signals.atr import atr_signal
+from signals.three_line_break import  linebreak_signal
 from pyalgotrade.stratanalyzer import sharpe
 from pyalgotrade.stratanalyzer import drawdown
 from pyalgotrade.stratanalyzer import trades
@@ -196,7 +225,10 @@ def main(plot):
     signal_name = 'trend'
     signal_parameter = { 'period': 5}
     '''
-
+    #signal_name = 'atr'
+    #signal_parameter = {'period': 5}
+    #signal_name = 'linebreak'
+    #signal_parameter = {'period': 5}
 #singal_parameter= {'slow_period':20,'fast_period':5}
     #feed.addBarsFromCSV(instrument,"2030.csv")
     strategy_dict={'dma':DMA_signal,
@@ -204,7 +236,9 @@ def main(plot):
                    'trend':trend_signal,
                    'kd':kd_signal,
                    'bband':bband_signal,
-                   'rsi':rsi_signal}
+                   'rsi':rsi_signal,
+                   'atr':atr_signal,
+                   'linebreak':linebreak_signal}
     signal= strategy_dict[signal_name]
     #feed.setBarFilter(DateRangeFilter(       datetime.strptime("2015-11-1","%Y-%m-%d"),         datetime.strptime("2016-2-1","%Y-%m-%d")))
     #execfile('bband_strategy.py',checknamespace)
