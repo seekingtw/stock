@@ -13,15 +13,19 @@ def struct(dict_data,level =0):
         else:
             print "\t"*level+each," : ",type(dict_data[each])
 class Cursor(object):
-    def __init__(self, axes):
+    def __init__(self, axes,lines_2d):
         self.lys =[]
-        self.ax = axes[0]
-        self.lx = axes[0].axhline(color='k')  # the horiz line
-        for ax in axes:
-            self.lys.append(ax.axvline(color='k'))  # the vert line
-
+        self.lxs= []
+        #self.lx = axes[0].axhline(color='k')  # the horiz line
+        for i,ax in enumerate(axes):
+            self.lys.append(ax.axvline(x=lines_2d[i].get_xdata()[0],color='k'))  # the vert line
+            self.lxs.append (ax.axhline(y=0.05,color='k')  )# the horiz line
+        print self.lxs
+        print self.lys
+        print self.lxs[0],self.lxs[1]
         # text location in axes coords
         self.txt = axes[0].text(0.7, 0.9, '', transform=ax.transAxes)
+        self.lines= lines_2d
 
     def mouse_move(self, event):
         if not event.inaxes:
@@ -29,11 +33,22 @@ class Cursor(object):
 
         x, y = event.xdata, event.ydata
         # update the line positions
-        self.lx.set_ydata(y)
-        for each in self.lys:
-            each.set_xdata(x)
+        #x_pos =self.lines.get_xdata(orig=False)
+        #indx = np.searchsorted(x_pos, [x])[0]
 
-        self.txt.set_text('x=%1.2f, y=%1.2f' % (x, y))
+        #self.lx.set_ydata(y)
+        #print "=--------------"
+        for i,each in enumerate(self.lys):
+            x_pos =self.lines[i].get_xdata(orig=False)
+            indx = np.searchsorted(x_pos, [x])[0]
+            self.lys[i].set_xdata(self.lines[i].get_xdata()[indx])
+            #print self.lines[i].get_ydata()[indx]
+            #print self.lxs[i]
+            self.lxs[i].set_ydata(self.lines[i].get_ydata()[indx])
+        #print "=--------------="
+        #for i,each in enumerate(self.lxs):
+        #    each.set_ydata(self.lines[i].get_ydata()[indx])
+        #self.txt.set_text('x=%1.2f, y=%1.2f' % (x, y))
         plt.draw()
 
 def check_signal(inputfile='sp20-1303bband.pickle'):
@@ -74,29 +89,9 @@ def check_rsi(inputfile='sp20-1303bband.pickle'):
 #    inputfile='sp20-1301bband.pickle'
     inst=pickle.load(open(inputfile))
     struct(inst)
+    lines=[]
 
 
-    strategy_name= 'bband'
-    for each in inst['trend']:
-        if each != 'vol' and each != 'prices':
-            strategy_name = each
-    p = plt.subplot(2, 1, 2)
-    inst['trend'][strategy_name].plot(ax=p)
-
-    datapd = inst['trend'][strategy_name]
-
-
-    #datapd=datapd.fillna(0)
-    datapd2=datapd.dropna()
-    #print datapd
-
-
-
-    print datapd2.describe()
-
-
-
-    p.grid(True)
     p = plt.subplot(2, 1, 1)
     long_signal = {'date': [], 'data': []}
     short_signal = {'date': [], 'data': []}
@@ -113,18 +108,42 @@ def check_rsi(inputfile='sp20-1303bband.pickle'):
     # print long_signal
     # print short_signal
 
-    #p.plot(inst['trade']['datetime'],inst['trade']['price'])
-    inst['trend']['prices'].plot(ax=p)
+    # p.plot(inst['trade']['datetime'],inst['trade']['price'])
+    aa = inst['trend']['prices'].plot(ax=p)
+    lines.append(aa.get_lines()[0])
+
+    # p.scatter(short_signal['date'],short_signal['data'],color='g')
+
+
+# p.plot(inst['trade']['datetime'],inst['trade']['price'])
     p.scatter(long_signal['date'], long_signal['data'], color='r')
-    p.scatter(short_signal['date'],short_signal['data'],color='g')
+    p.scatter(short_signal['date'], short_signal['data'], color='g')
+    plt.grid(True)
+
+    strategy_name= 'bband'
+    for each in inst['trend']:
+        if each != 'vol' and each != 'prices':
+            strategy_name = each
+
+    p = plt.subplot(2, 1, 2)
+    aa = inst['trend'][strategy_name].plot(ax=p)
+    lines.append(aa.get_lines()[0])
+
+    datapd = inst['trend'][strategy_name]
+    #datapd=datapd.fillna(0)
+    datapd2=datapd.dropna()
+    #print datapd
+    print datapd2.describe()
+    p.grid(True)
+
 
 
     allaxes = gcf().get_axes()
 
-    cursor = Cursor(allaxes)
+    cursor = Cursor(allaxes,lines)
     # cursor = SnaptoCursor(ax, t, s)
     plt.connect('motion_notify_event', cursor.mouse_move)
-    plt.grid(True)
+
     plt.show()
 
 

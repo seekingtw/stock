@@ -15,6 +15,7 @@ similar effect.  See
 """
 from __future__ import print_function
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 import numpy as np
 import datetime
 import random
@@ -23,7 +24,7 @@ class Cursor(object):
         self.ax = ax
         self.lx = ax.axhline(color='k')  # the horiz line
         #self.ly = ax.axvline(color='k')  # the vert line
-
+        self.ly = ax.axvline(datetime.datetime.now(),color='k')
         # text location in axes coords
         #self.txt = ax.text(0.7, 0.9, '', transform=ax.transAxes)
 
@@ -32,6 +33,7 @@ class Cursor(object):
             return
 
         x, y = event.xdata, event.ydata
+        print(x,y)
         # update the line positions
         self.lx.set_ydata(y)
         #self.ly.set_xdata(x)
@@ -46,6 +48,7 @@ class SnaptoCursor(object):
     Like Cursor but the crosshair snaps to the nearest x,y point
     For simplicity, I'm assuming x is sorted
     """
+    '''
 
     def __init__(self, ax, x, y):
         self.ax = ax
@@ -55,6 +58,32 @@ class SnaptoCursor(object):
         self.y = y
         # text location in axes coords
         self.txt = ax.text(0.7, 0.9, '', transform=ax.transAxes)
+      def mouse_move(self, event):
+
+            if not event.inaxes:
+                return
+
+            x, y = event.xdata, event.ydata
+
+            indx = np.searchsorted(self.x, [x])[0]
+            x = self.x[indx]
+            y = self.y[indx]
+            # update the line positions
+            self.lx.set_ydata(y)
+            self.ly.set_xdata(x)
+
+            self.txt.set_text('x=%1.2f, y=%1.2f' % (x, y))
+            print('x=%1.2f, y=%1.2f' % (x, y))
+            plt.draw()
+    '''
+    def __init__(self, ax,line_2d):
+        self.ax = ax
+        self.line = line_2d
+        self.lx = ax.axhline(y=2,color='k')  # the horiz line
+        self.ly = ax.axvline(x=line_2d.get_xdata()[5],color='k')  # the vert line
+
+        # text location in axes coords
+        self.txt = ax.text(0.7, 0.9, '', transform=ax.transAxes)
 
     def mouse_move(self, event):
 
@@ -62,16 +91,17 @@ class SnaptoCursor(object):
             return
 
         x, y = event.xdata, event.ydata
-
-        indx = np.searchsorted(self.x, [x])[0]
-        x = self.x[indx]
-        y = self.y[indx]
+        x_s = self.line.get_xdata(orig=False)
+        indx = np.searchsorted(x_s, [x])[0]
+        #print(indx)
+        x = self.line.get_xdata()[indx]
+        y = self.line.get_ydata()[indx]
         # update the line positions
         self.lx.set_ydata(y)
         self.ly.set_xdata(x)
 
-        self.txt.set_text('x=%1.2f, y=%1.2f' % (x, y))
-        print('x=%1.2f, y=%1.2f' % (x, y))
+        #self.txt.set_text('x=%1.2f, y=%1.2f' % (x, y))
+        #print('x=%1.2f, y=%1.2f' % (x, y))
         plt.draw()
 
 # make up some data
@@ -95,11 +125,14 @@ for i in range(10): t.append(i)
 #for each in range(10): s.append(datetime.datetime(2018,1,each+1))
 s = [datetime.datetime.now() + datetime.timedelta(days=i) for i in range(10)]
 fig, ax = plt.subplots()
-
-cursor = Cursor(ax)
-#cursor = SnaptoCursor(ax, t, s)
+#line= ax.scatter(s,t )
+line= plt.plot(s,t)
+#print(line[0])
+#print (line[0].get_xdata(orig=False))
+#cursor = Cursor(ax)
+cursor = SnaptoCursor(ax, line[0])
 plt.connect('motion_notify_event', cursor.mouse_move)
 
-ax.scatter(s,t )
+
 #plt.axis([0, 1, -1, 1])
 plt.show()
