@@ -16,16 +16,40 @@ class Cursor(object):
     def __init__(self, axes,lines_2d):
         self.lys =[]
         self.lxs= []
+        self.texts=[]
         #self.lx = axes[0].axhline(color='k')  # the horiz line
         for i,ax in enumerate(axes):
             self.lys.append(ax.axvline(x=lines_2d[i].get_xdata()[0],color='k'))  # the vert line
             self.lxs.append (ax.axhline(y=0.05,color='k')  )# the horiz line
+            # cal text pos
+            x_pos =lines_2d[i].get_xdata(orig=False)
+            y_list=  lines_2d[i].get_ydata()
+            #get first num
+            first_num = 0
+            while 1:
+                if (str(lines_2d[i].get_ydata()[first_num])!= '--'):
+                    #print "find ",lines_2d[i].get_ydata()[first_num]
+                    break
+                else:
+                    first_num +=1
+
+            y_pos_max = max(y_list[first_num:])
+            y_pos_min= ymin=min(y_list[first_num:])
+            self.texts.append(  ax.text(lines_2d[i].get_xdata()[0],y_pos_max*1.1,"data"))
+            ymin= y_pos_min *0.8 if y_pos_min> 0 else y_pos_min *1.2
+            ymax = y_pos_max * 1.3if y_pos_max > 0 else y_pos_max * 0.87
+            ax.set_ylim(ymin=ymin,ymax=ymax)
+
+
         print self.lxs
         print self.lys
         print self.lxs[0],self.lxs[1]
         # text location in axes coords
-        self.txt = axes[0].text(0.7, 0.9, '', transform=ax.transAxes)
+        #self.txt = axes[0].text(0.7, 0.9, '', transform=ax.transAxes)
+
         self.lines= lines_2d
+        #self.axes=axes
+
 
     def mouse_move(self, event):
         if not event.inaxes:
@@ -41,10 +65,14 @@ class Cursor(object):
         for i,each in enumerate(self.lys):
             x_pos =self.lines[i].get_xdata(orig=False)
             indx = np.searchsorted(x_pos, [x])[0]
-            self.lys[i].set_xdata(self.lines[i].get_xdata()[indx])
+            x_data=self.lines[i].get_xdata()[indx]
+            self.lys[i].set_xdata(x_data)
             #print self.lines[i].get_ydata()[indx]
             #print self.lxs[i]
-            self.lxs[i].set_ydata(self.lines[i].get_ydata()[indx])
+            y_data=self.lines[i].get_ydata()[indx]
+            self.lxs[i].set_ydata(y_data)
+            self.texts[i].set_text('x=%s y=%1.3f' % (x_data, y_data))
+        #for i, each in enumerate(self.axes):
         #print "=--------------="
         #for i,each in enumerate(self.lxs):
         #    each.set_ydata(self.lines[i].get_ydata()[indx])

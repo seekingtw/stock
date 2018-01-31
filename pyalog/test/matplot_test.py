@@ -83,7 +83,7 @@ class SnaptoCursor(object):
         self.ly = ax.axvline(x=line_2d.get_xdata()[5],color='k')  # the vert line
 
         # text location in axes coords
-        self.txt = ax.text(0.7, 0.9, '', transform=ax.transAxes)
+        self.txt = ax.text(line_2d.get_xdata()[3], 5, str(y))
 
     def mouse_move(self, event):
 
