@@ -231,9 +231,9 @@ def result_plot(series):
     pass
 '''
 if __name__ == "__main__":
-    #check_rsi('result/kd/sp5-1303kd.pickle')
+    check_rsi('result/kd/sp5-1303kd.pickle')
     #check_rsi('result/macd/sp5-1303macd.pickle')
     #check_rsi('result/dma/sp5-1303dma.pickle')
     #check_rsi('result/trend/sp5-1303trend.pickle')
 
-    check_rsi('result/roc/sp5-1303roc.pickle')
+    #check_rsi('result/roc/sp5-1303roc.pickle')
