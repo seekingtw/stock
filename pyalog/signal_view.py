@@ -2,6 +2,7 @@ import pandas as pd
 import datetime
 from pylab import *
 import pickle
+import matplotlib.finance as mpf
 
 def struct(dict_data,level =0):
     keys = dict_data.keys()
@@ -231,7 +232,9 @@ def result_plot(series):
     pass
 '''
 if __name__ == "__main__":
-    check_rsi('result/kd/sp5-1303kd.pickle')
+    #check_rsi('result/kd/sp5-1303kd.pickle')
+    check_rsi('result/kd/sp9-1303kd.pickle')
+
     #check_rsi('result/macd/sp5-1303macd.pickle')
     #check_rsi('result/dma/sp5-1303dma.pickle')
     #check_rsi('result/trend/sp5-1303trend.pickle')

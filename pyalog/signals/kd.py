@@ -45,6 +45,7 @@ class kd_signal(baseSignal,object):
         self.kd = stoch.StochasticOscillator(feed[instrument],slow_period,fast_period,False,None)
 
         self.plot_init(True)
+        self.start_check = False
 
     def trend_long(self,ma):
         if  ma[-5] is  None:
@@ -62,11 +63,25 @@ class kd_signal(baseSignal,object):
         return False
 
     def long_signal(self):
+        if self.slow__trend.trend_current_ratio() <=0:
+            return False;
+        '''
+        if self.start_check > 0:
+            self.start_check -=1
+            if self.kd.getKD_d()[-1] > self.kd.getKD_d()[-5] :#and self.trend_long(self.slow_ma):
+                self.start_check = 0
+                return True
+            if self.start_check == 0:
+                self.start_check = False
+        '''
         if cross.cross_above(self.kd.getKD_k(), self.kd.getKD_d()) :#and self.__trend.trend_current_ratio() >=0:
             #if self.trend_long(self.fast_ma) and self.trend_long(self.slow_ma):
             '''adjust'''
             #if self.kd.getKD_d()[-1] > 30 :#and self.trend_long(self.slow_ma):
-            return True
+            if self.kd.getKD_k()[-1] > self.kd.getKD_k()[-3] :#and self.trend_long(self.slow_ma):
+                return True
+            #return True
+            #self.start_check=3
         return False
         pass
     def short_signal(self):

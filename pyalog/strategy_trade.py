@@ -216,7 +216,7 @@ def main(plot):
     signal_parameter = {'period': 5}
     '''
     signal_name = 'kd'
-    signal_parameter = {'fast_period': 10, 'slow_period': 3}
+    signal_parameter = {'fast_period': 9, 'slow_period': 3}
     '''
     signal_name = 'macd'
     signal_parameter = {'fast_period': 12, 'slow_period': 26, 'signal_period': 9}

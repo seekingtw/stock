@@ -177,7 +177,7 @@ def main(plot):
     #signal_name = 'rsi'
     #signal_parameter= {'period':5}
     signal_name = 'kd'
-    signal_parameter = {'fast_period': 10, 'slow_period': 3}
+    signal_parameter = {'fast_period': 9, 'slow_period': 3}
     #signal_parameter = {'period': 5, 'std': 2}
     #signal_name = 'kd'
     #singal_parameter= {'slow_period':20,'fast_period':5}
@@ -189,10 +189,10 @@ def main(plot):
     #signal_name = 'trend'
     #signal_parameter = {'period': 5}
 
-    signal_name = 'roc'
-    signal_parameter = {'period': 5}
-    signal_name = 'atr'
-    signal_parameter = {'period': 5}
+    #signal_name = 'roc'
+    #signal_parameter = {'period': 5}
+    #signal_name = 'atr'
+    #signal_parameter = {'period': 5}
     strategy_dict={'dma':DMA_signal,
                    'macd':macd_signal,
                    'trend':trend_signal,
@@ -209,7 +209,9 @@ def main(plot):
     feed = googlefeed.Feed()
     feed.addBarsFromCSV(instrument, csvfile)
     #signal_parameter['period'] = i
-    output_prefix= "result/"+signal_name+"/sp"+str(i)+"-"
+    #output_prefix= "result/"+signal_name+"/sp"+str(i)+"-"
+    output_prefix= "result/"+signal_name+"/sp"+str(9)+"-"
+
     run(feed, instrument, signal, signal_parameter, signal_name, output_prefix, output_postfix)
     '''
     run(feed, instrument,signal,signal_parameter,signal_name,output_prefix,output_postfix)
