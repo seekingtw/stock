@@ -31,5 +31,5 @@ https://zhuanlan.zhihu.com/p/28584048 Matplotlib 蜡烛图教程
 https://zhuanlan.zhihu.com/p/24282861
 https://zhuanlan.zhihu.com/p/29519040
 http://www.bigdatafinance.tw/index.php/393-python-3，＝＝＝ read
-
+you can learn [資料分析&機器學習]
 '''
