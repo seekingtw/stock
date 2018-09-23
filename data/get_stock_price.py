@@ -66,12 +66,32 @@ def get_price_report(stock_id, from_date, to_date=None):
     df = pd.DataFrame({ e[0]: e[1:] for e in prices_dict['data']}, index=prices_dict['fields'][1:])
     df = df.transpose()
     return df
-    #print(df)
 
+def datetime_to_google_time(time):
+    month_abbr = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4,
+                  'May': 5, 'Jun': 6, 'Jul': 7, 'Aug': 8,
+                  'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
+    #year=time.strftime("%Y")
+    return time.strftime("%d-%b-%y")
 
+def twse_to_google(twse_dataframe, to_csv_filename=None):
+    google_dataframe = pd.DataFrame(columns=['Date','Open','High','Low','Close','Volume'])
+    #print(twse_dataframe.index.values)
+    google_dataframe['Date']= twse_dataframe.index.values
+    #twse_dataframe.index.apply(lambda t:t.strftime("%d-%b-%y"))
+    google_dataframe['Open']=twse_dataframe['開盤價'].values
+    google_dataframe['High']=twse_dataframe['最高價'].values
+    google_dataframe['Low']=twse_dataframe['最低價'].values
+    google_dataframe['Close']=twse_dataframe['收盤價'].values
+    google_dataframe['Volume'] = twse_dataframe['成交股數'].values
+    google_dataframe['Date']= google_dataframe['Date'].apply(lambda t:t.strftime("%d-%b-%y"))
+    if to_csv_filename:
+        google_dataframe.to_csv(to_csv_filename,index=False)
+    return google_dataframe
 
 if  __name__ == "__main__":
 	df = get_price_report(2330,'20180101','20180312')
 	print(df.describe())
 	print(df)
+	print(twse_to_google(df))
 
